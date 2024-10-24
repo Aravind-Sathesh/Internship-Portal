@@ -25,7 +25,7 @@ passport.use(
 				id: profile.id,
 				displayName: profile.displayName,
 				emails: profile.emails,
-				photo: photo, // Pass the profile photo
+				photo: photo,
 			};
 
 			if (email && email.endsWith('@hyderabad.bits-pilani.ac.in')) {

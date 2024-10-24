@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import { googleCallback, userInfo } from '../controllers/authcontroller';
+import { googleCallback, userInfo } from '../controllers/authController';
 
 const router = express.Router();
 
@@ -8,6 +8,7 @@ router.get(
 	'/google',
 	passport.authenticate('google', { scope: ['profile', 'email'] })
 );
+
 router.get(
 	'/google/callback',
 	passport.authenticate('google', { failureRedirect: '/login' }),
