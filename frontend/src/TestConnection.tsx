@@ -18,7 +18,7 @@ const TestConnection: React.FC = () => {
 
 	return (
 		<div>
-			<h1>{message || 'Connecting...'}</h1>
+			<h3>{message || 'Connecting...'}</h3>
 		</div>
 	);
 };

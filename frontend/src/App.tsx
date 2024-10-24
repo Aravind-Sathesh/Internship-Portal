@@ -15,19 +15,9 @@ function App() {
 						path='/'
 						element={
 							<div>
-								<h1>Welcome to Internship Portal</h1>
+								<h2>Welcome to Internship Portal</h2>
 								<TestConnection />
-								<button
-									onClick={handleLogin}
-									style={{
-										padding: '10px',
-										backgroundColor: '#4285F4',
-										color: '#fff',
-										border: 'none',
-										borderRadius: '5px',
-										cursor: 'pointer',
-									}}
-								>
+								<button onClick={handleLogin}>
 									Login with Google
 								</button>
 							</div>

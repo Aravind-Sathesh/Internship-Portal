@@ -1,12 +1,12 @@
 import { Sequelize } from 'sequelize';
 
 const sequelize = new Sequelize(
-	'internship_portal',
-	'internship_user',
-	'Very-Strong-Database-Password',
+	process.env.DB_NAME as string,
+	process.env.DB_USER as string,
+	process.env.DB_PASSWORD as string,
 	{
-		host: 'localhost',
-		dialect: 'mysql',
+		host: process.env.DB_HOST,
+		dialect: process.env.DB_DIALECT as 'mysql',
 	}
 );
 

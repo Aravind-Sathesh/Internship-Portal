@@ -35,7 +35,6 @@ const googleCallback = (req: Request, res: Response): void => {
 
 	const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
 
-	// Set token in a cookie
 	res.cookie('token', token, { httpOnly: true, secure: true });
 	res.redirect(`http://localhost:5173/dashboard`);
 };

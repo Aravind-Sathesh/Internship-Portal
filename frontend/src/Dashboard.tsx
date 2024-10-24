@@ -29,19 +29,13 @@ const Dashboard = () => {
 	}, []);
 
 	return (
-		<div style={{ textAlign: 'center', marginTop: '50px' }}>
+		<div>
 			{user ? (
 				<>
-					<h1>Welcome, {user.displayName}</h1>
+					<h2>Welcome, {user.displayName}</h2>
 					<img
 						src={user.photo}
 						alt={`${user.displayName}'s profile`}
-						style={{
-							borderRadius: '50%',
-							width: '150px',
-							height: '150px',
-							objectFit: 'cover',
-						}}
 					/>
 					<p>Email: {user.email}</p>
 				</>
