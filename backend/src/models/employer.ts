@@ -1,20 +1,19 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
 
-class Student extends Model {
+class Employer extends Model {
 	public id!: number;
 	public email!: string;
-	public name!: string;
+	public password!: string;
+	public name!: string; // Employer name and company name
 	public phoneNumber!: string;
 	public address!: string;
-	public bitsId!: string;
-	public photoUrl?: string;
 }
 
-Student.init(
+Employer.init(
 	{
 		id: {
-			type: DataTypes.BIGINT.UNSIGNED,
+			type: DataTypes.INTEGER.UNSIGNED,
 			autoIncrement: true,
 			primaryKey: true,
 		},
@@ -22,6 +21,10 @@ Student.init(
 			type: DataTypes.STRING,
 			allowNull: false,
 			unique: true,
+		},
+		password: {
+			type: DataTypes.STRING,
+			allowNull: false,
 		},
 		name: {
 			type: DataTypes.STRING,
@@ -35,30 +38,13 @@ Student.init(
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
-		bitsId: {
-			type: DataTypes.STRING,
-			allowNull: false,
-			unique: true,
-		},
-		photoUrl: {
-			type: DataTypes.STRING,
-		},
 	},
 	{
 		sequelize,
-		modelName: 'Student',
-		tableName: 'students',
+		modelName: 'Employer',
+		tableName: 'employers',
 		timestamps: false,
-		hooks: {
-			beforeCreate: (student: Student) => {
-				const email = student.email;
-				const idPart = email.match(/\d+/)?.[0];
-				if (idPart) {
-					student.id = parseInt(`411${idPart}`, 10);
-				}
-			},
-		},
 	}
 );
 
-export default Student;
+export default Employer;
