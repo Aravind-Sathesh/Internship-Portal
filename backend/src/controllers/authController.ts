@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import Student from '../models/student';
 
 interface CustomUser extends Express.User {
 	emails?: { value: string }[];
@@ -8,7 +9,7 @@ interface CustomUser extends Express.User {
 	photo?: string;
 }
 
-const googleCallback = (req: Request, res: Response): void => {
+const googleCallback = async (req: Request, res: Response): Promise<void> => {
 	const user = req.user as CustomUser;
 
 	if (!user) {
@@ -21,8 +22,18 @@ const googleCallback = (req: Request, res: Response): void => {
 	const userId = user.id || 'No ID found';
 	const photo = user.photo || '';
 
+	console.log('Email received from Google:', email);
+	let studentId = userId;
+	const match = email.match(/^f(\d{8})@hyderabad\.bits-pilani\.ac\.in$/);
+	console.log(match);
+	if (match) {
+		const rollNumber = match[1];
+		studentId = '411' + rollNumber;
+		console.log(studentId);
+	}
+
 	const payload = {
-		id: userId,
+		id: studentId,
 		email: email,
 		displayName: displayName,
 		photo: photo,
@@ -34,9 +45,17 @@ const googleCallback = (req: Request, res: Response): void => {
 	}
 
 	const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
+	console.log('JWT payload:', payload);
+
+	const student = await Student.findOne({ where: { email } });
 
 	res.cookie('token', token, { httpOnly: true, secure: true });
-	res.redirect(`http://localhost:5173/dashboard`);
+
+	if (!student) {
+		res.redirect(`http://localhost:5173/update-profile`);
+	} else {
+		res.redirect(`http://localhost:5173/student-dashboard`);
+	}
 };
 
 const userInfo = (req: Request, res: Response) => {
