@@ -1,33 +1,27 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import TestConnection from './TestConnection';
-import Dashboard from './Dashboard';
+import Login from './pages/Login'; // Unified login for students and employers
+import UpdateProfile from './pages/UpdateProfile';
+import Dashboard from './components/Dashboard';
+import StudentProfile from './pages/StudentProfile';
 
-function App() {
-	const handleLogin = () => {
-		window.location.href = 'http://localhost:5000/auth/google';
-	};
-
+const App = () => {
 	return (
 		<Router>
-			<div className='App'>
-				<Routes>
-					<Route
-						path='/'
-						element={
-							<div>
-								<h2>Welcome to Internship Portal</h2>
-								<TestConnection />
-								<button onClick={handleLogin}>
-									Login with Google
-								</button>
-							</div>
-						}
-					/>
-					<Route path='/dashboard' element={<Dashboard />} />
-				</Routes>
-			</div>
+			<Routes>
+				<Route path='/' element={<Login />} />
+				<Route
+					path='/student-dashboard'
+					element={<Dashboard userType='student' />}
+				/>
+				<Route
+					path='/employer-dashboard'
+					element={<Dashboard userType='employer' />}
+				/>
+				<Route path='/update-profile' element={<UpdateProfile />} />
+				<Route path='/student-profile' element={<StudentProfile />} />
+			</Routes>
 		</Router>
 	);
-}
+};
 
 export default App;
