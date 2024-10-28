@@ -29,7 +29,7 @@ const UpdateProfile = () => {
 				const data = await response.json();
 				setProfileData({
 					email: data.user.email,
-					studentId: `411${data.user.email.match(/\d+/)[0]}`, // Generate ID based on email
+					studentId: `411${data.user.email.match(/\d+/)[0]}`,
 					name: data.user.displayName,
 					phoneNumber: '',
 					address: '',

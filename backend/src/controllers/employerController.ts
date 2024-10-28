@@ -23,3 +23,33 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 		res.status(400).json({ error: error.message });
 	}
 };
+
+export const updateProfile = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	const { id } = req.params;
+	const { name, email, phoneNumber, address } = req.body;
+
+	try {
+		const [updated] = await Employer.update(
+			{ name, email, phoneNumber, address },
+			{ where: { id } }
+		);
+
+		if (!updated) {
+			res.status(404).json({ message: 'Employer not found' });
+			return;
+		}
+
+		const updatedEmployer = await Employer.findByPk(id);
+
+		res.status(200).json({
+			message: 'Employer profile updated successfully',
+			employer: updatedEmployer,
+		});
+	} catch (err) {
+		const error = err as Error;
+		res.status(400).json({ error: error.message });
+	}
+};

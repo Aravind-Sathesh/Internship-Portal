@@ -2,13 +2,13 @@ import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
 
 class Student extends Model {
-	public id!: number;
-	public email!: string;
-	public name!: string;
-	public phoneNumber!: string;
-	public address!: string;
-	public bitsId!: string;
-	public photoUrl?: string;
+	declare id: number;
+	declare email: string;
+	declare name: string;
+	declare phoneNumber: string;
+	declare address: string;
+	declare bitsId: string;
+	declare photoUrl: string;
 }
 
 Student.init(

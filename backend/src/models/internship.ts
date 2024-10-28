@@ -1,13 +1,14 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
 import Employer from './employer';
+import Application from './application';
 
 class Internship extends Model {
-	public id!: number;
-	public role!: string;
-	public description!: string;
-	public employerId!: number;
-	public deadline!: Date;
+	declare id: number;
+	declare role: string;
+	declare description: string;
+	declare employerId: number;
+	declare deadline: Date;
 }
 
 Internship.init(
@@ -41,7 +42,5 @@ Internship.init(
 		timestamps: false,
 	}
 );
-
-Internship.belongsTo(Employer, { foreignKey: 'employerId' });
 
 export default Internship;

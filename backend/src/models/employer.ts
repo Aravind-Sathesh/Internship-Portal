@@ -2,12 +2,12 @@ import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
 
 class Employer extends Model {
-	public id!: number;
-	public email!: string;
-	public password!: string;
-	public name!: string; // Employer name and company name
-	public phoneNumber!: string;
-	public address!: string;
+	declare id: number;
+	declare email: string;
+	declare password: string;
+	declare name: string;
+	declare phoneNumber: string;
+	declare address: string;
 }
 
 Employer.init(

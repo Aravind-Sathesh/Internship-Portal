@@ -31,3 +31,56 @@ export const updateProfile = async (
 		res.status(400).json({ error: error.message });
 	}
 };
+
+export const getStudentProfile = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	const { email } = req.params;
+
+	try {
+		const student = await Student.findOne({
+			where: { email },
+		});
+
+		if (!student) {
+			res.status(404).json({ message: 'Student not found' });
+			return;
+		}
+
+		res.status(200).json(student);
+	} catch (err) {
+		const error = err as Error;
+		res.status(500).json({ error: error.message });
+	}
+};
+
+export const updateStudentProfile = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	const { id } = req.params;
+	const { name, email, phoneNumber, address } = req.body;
+
+	try {
+		const [updated] = await Student.update(
+			{ name, email, phoneNumber, address },
+			{ where: { id } }
+		);
+
+		if (!updated) {
+			res.status(404).json({ message: 'Student not found' });
+			return;
+		}
+
+		const updatedStudent = await Student.findByPk(id);
+
+		res.status(200).json({
+			message: 'Student profile updated successfully',
+			student: updatedStudent,
+		});
+	} catch (err) {
+		const error = err as Error;
+		res.status(400).json({ error: error.message });
+	}
+};

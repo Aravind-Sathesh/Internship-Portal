@@ -8,6 +8,7 @@ import {
 	cancelApplication,
 	acceptApplication,
 	getApplicationsByStudentId,
+	getApplicationsByEmployerId,
 } from '../controllers/applicationController';
 
 const router = express.Router();
@@ -15,6 +16,7 @@ const router = express.Router();
 router.post('/', createApplication);
 router.get('/', getAllApplications);
 router.get('/:id', getApplicationById);
+router.get('/employer/:employerId', getApplicationsByEmployerId);
 router.put('/:id', updateApplication);
 router.delete('/:id', deleteApplication);
 router.get('/student/:studentId', getApplicationsByStudentId);

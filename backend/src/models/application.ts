@@ -1,13 +1,20 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database';
-import Student from './student';
 import Internship from './internship';
+import Student from './student';
 
 class Application extends Model {
-	public id!: number;
-	public studentId!: number;
-	public internshipId!: number;
-	public status!: string;
+	declare id: number;
+	declare studentId: number;
+	declare internshipId: number;
+	declare status:
+		| 'Applied'
+		| 'Under Review'
+		| 'Interview Scheduled'
+		| 'Offer Given'
+		| 'Rejected'
+		| 'Cancelled'
+		| 'Accepted';
 }
 
 Application.init(
@@ -32,7 +39,8 @@ Application.init(
 				'Interview Scheduled',
 				'Offer Given',
 				'Rejected',
-				'Cancelled'
+				'Cancelled',
+				'Accepted'
 			),
 			allowNull: false,
 		},
@@ -44,8 +52,5 @@ Application.init(
 		timestamps: false,
 	}
 );
-
-Application.belongsTo(Student, { foreignKey: 'studentId' });
-Application.belongsTo(Internship, { foreignKey: 'internshipId' });
 
 export default Application;

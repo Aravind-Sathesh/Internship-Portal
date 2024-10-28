@@ -5,7 +5,8 @@ const Login = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 
-	const handleEmployerLogin = async () => {
+	const handleEmployerLogin = async (event: React.FormEvent) => {
+		event.preventDefault();
 		try {
 			const response = await fetch(
 				'http://localhost:5000/employer/login',
@@ -20,8 +21,8 @@ const Login = () => {
 
 			const data = await response.json();
 			if (data.token) {
-				localStorage.setItem('token', data.token); // Storing JWT
-				window.location.href = '/employer-dashboard'; // Redirect after successful login
+				localStorage.setItem('token', data.token);
+				window.location.href = '/employer-dashboard';
 			} else {
 				alert('Login failed');
 			}
@@ -40,10 +41,10 @@ const Login = () => {
 				Login
 			</Typography>
 
-			<form>
-				<Grid container spacing={4}>
-					<Grid item xs={12} sm={6}>
-						<Typography variant='h6'>Employer Login</Typography>
+			<Grid container spacing={4}>
+				<Grid item xs={12} sm={6}>
+					<Typography variant='h6'>Employer Login</Typography>
+					<form onSubmit={handleEmployerLogin}>
 						<TextField
 							label='Email'
 							value={email}
@@ -64,28 +65,29 @@ const Login = () => {
 						<Button
 							variant='contained'
 							color='primary'
-							onClick={handleEmployerLogin}
+							style={{ marginTop: '1rem' }}
 							fullWidth
+							type='submit'
 						>
 							Employer Login
 						</Button>
-					</Grid>
-					<Grid item xs={12} sm={6} textAlign='center'>
-						<Typography variant='h6' mb={2}>
-							Student Login
-						</Typography>
-						<Button
-							variant='contained'
-							color='primary'
-							onClick={handleGoogleLogin}
-							fullWidth
-							style={{ height: '56px' }}
-						>
-							Login with Google
-						</Button>
-					</Grid>
+					</form>
 				</Grid>
-			</form>
+				<Grid item xs={12} sm={6} textAlign='center'>
+					<Typography variant='h6' mb={2}>
+						Student Login
+					</Typography>
+					<Button
+						variant='contained'
+						color='primary'
+						onClick={handleGoogleLogin}
+						fullWidth
+						style={{ height: '56px' }}
+					>
+						Login with Google
+					</Button>
+				</Grid>
+			</Grid>
 		</Box>
 	);
 };
