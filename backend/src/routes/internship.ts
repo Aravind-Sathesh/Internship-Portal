@@ -5,6 +5,7 @@ import {
 	getInternshipById,
 	updateInternship,
 	deleteInternship,
+	getInternshipsWithEmployers,
 	getRoles,
 } from '../controllers/internshipController';
 
@@ -12,6 +13,7 @@ const router = express.Router();
 
 router.post('/', createInternship);
 router.get('/', getAllInternships);
+router.get('/with-employers', getInternshipsWithEmployers);
 router.get('/:id', getInternshipById);
 router.put('/:id', updateInternship);
 router.delete('/:id', deleteInternship);

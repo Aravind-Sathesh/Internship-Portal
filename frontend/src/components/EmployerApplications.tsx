@@ -40,6 +40,7 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 		'Rejected',
 		'Accepted',
 		'Withdrawn',
+		'Applied',
 	];
 
 	// Fetch applications by employer ID on page load
@@ -174,6 +175,7 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 									}
 									variant='outlined'
 									sx={{ minWidth: '200px' }}
+									disabled={app.status === 'Withdrawn'}
 								>
 									{menuItems.map((item, k) => (
 										<MenuItem value={item} key={k}>
@@ -187,6 +189,7 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 									variant='outlined'
 									color='success'
 									onClick={() => handleView(app.studentId)}
+									disabled={app.status === 'Withdrawn'}
 								>
 									View
 								</Button>

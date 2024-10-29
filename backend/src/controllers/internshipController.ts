@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import Internship from '../models/internship';
 import Application from '../models/application';
+import Employer from '../models/employer';
 import sequelize from 'sequelize';
 
 export const createInternship = async (
@@ -110,8 +111,10 @@ export const getRoles = async (req: Request, res: Response): Promise<void> => {
 		const rolesWithCount = await Internship.findAll({
 			where: { employerId },
 			attributes: [
+				'id',
 				'role',
 				'description',
+				'deadline',
 				[
 					sequelize.fn('COUNT', sequelize.col('applications.id')),
 					'applicationCount',
@@ -131,12 +134,47 @@ export const getRoles = async (req: Request, res: Response): Promise<void> => {
 		});
 
 		const formattedRoles = rolesWithCount.map((role: any) => ({
+			id: role.id,
+			deadline: role.deadline,
 			role: role.role,
 			description: role.description,
 			applicationCount: role.dataValues.applicationCount,
 		}));
 
 		res.status(200).json(formattedRoles);
+	} catch (err) {
+		const error = err as Error;
+		res.status(400).json({ error: error.message });
+	}
+};
+
+export const getInternshipsWithEmployers = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	try {
+		const internshipsWithEmployers = await Internship.findAll({
+			attributes: ['id', 'role', 'description', 'deadline'],
+			include: [
+				{
+					model: Employer,
+					attributes: ['id', 'name'],
+				},
+			],
+		});
+
+		const formattedInternships = internshipsWithEmployers.map(
+			(internship: any) => ({
+				internshipId: internship.id,
+				employer: internship.Employer.name,
+				employerId: internship.Employer.id,
+				role: internship.role,
+				description: internship.description,
+				deadline: internship.deadline,
+			})
+		);
+
+		res.status(200).json(formattedInternships);
 	} catch (err) {
 		const error = err as Error;
 		res.status(400).json({ error: error.message });
