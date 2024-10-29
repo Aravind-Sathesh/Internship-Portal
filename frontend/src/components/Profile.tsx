@@ -154,7 +154,7 @@ const Profile = ({ type }: ProfileProps) => {
 					credentials: 'include',
 				}
 			);
-			// window.location.href = '/login';
+			window.location.href = '/login';
 		} catch (error) {
 			console.error('Error deleting account:', error);
 		}

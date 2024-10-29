@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Student from '../models/student';
+import Application from '../models/application';
 
 export const updateProfile = async (
 	req: Request,
@@ -92,6 +93,10 @@ export const deleteStudentProfile = async (
 	const { id } = req.params;
 
 	try {
+		await Application.destroy({
+			where: { studentId: id },
+		});
+
 		const deleted = await Student.destroy({
 			where: { id },
 		});
