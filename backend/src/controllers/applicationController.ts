@@ -8,7 +8,8 @@ export const createApplication = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
-	const { studentId, internshipId, status } = req.body;
+	const { studentId, internshipId } = req.body;
+	const status = 'Applied';
 	try {
 		const application = await Application.create({
 			studentId,
@@ -149,6 +150,7 @@ export const getApplicationsByEmployerId = async (
 			const internship = app.get('Internship');
 			const student = app.get('Student');
 			return {
+				id: app.id || 'N/A',
 				studentId: student?.id || 'N/A',
 				studentName: student?.name || 'N/A',
 				role: internship?.role || 'N/A',
@@ -189,7 +191,7 @@ export const updateApplication = async (
 	}
 };
 
-export const cancelApplication = async (
+export const withdrawApplication = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
@@ -200,7 +202,7 @@ export const cancelApplication = async (
 			res.status(404).json({ message: 'Application not found' });
 			return;
 		}
-		application.status = 'Cancelled';
+		application.status = 'Withdrawn';
 		await application.save();
 		res.status(200).json({ message: 'Application cancelled successfully' });
 	} catch (err) {

@@ -9,11 +9,10 @@ class Application extends Model {
 	declare internshipId: number;
 	declare status:
 		| 'Applied'
-		| 'Under Review'
 		| 'Interview Scheduled'
 		| 'Offer Given'
 		| 'Rejected'
-		| 'Cancelled'
+		| 'Withdrawn'
 		| 'Accepted';
 }
 
@@ -35,11 +34,10 @@ Application.init(
 		status: {
 			type: DataTypes.ENUM(
 				'Applied',
-				'Under Review',
 				'Interview Scheduled',
 				'Offer Given',
 				'Rejected',
-				'Cancelled',
+				'Withdrawn',
 				'Accepted'
 			),
 			allowNull: false,

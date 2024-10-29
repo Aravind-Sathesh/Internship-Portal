@@ -5,7 +5,7 @@ import {
 	getApplicationById,
 	updateApplication,
 	deleteApplication,
-	cancelApplication,
+	withdrawApplication,
 	acceptApplication,
 	getApplicationsByStudentId,
 	getApplicationsByEmployerId,
@@ -20,7 +20,7 @@ router.get('/employer/:employerId', getApplicationsByEmployerId);
 router.put('/:id', updateApplication);
 router.delete('/:id', deleteApplication);
 router.get('/student/:studentId', getApplicationsByStudentId);
-router.post('/:id/cancel', cancelApplication);
+router.post('/:id/cancel', withdrawApplication);
 router.post('/:id/accept', acceptApplication);
 
 export default router;
