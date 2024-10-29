@@ -53,3 +53,28 @@ export const updateProfile = async (
 		res.status(400).json({ error: error.message });
 	}
 };
+
+export const deleteProfile = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	const { id } = req.params;
+
+	try {
+		const deleted = await Employer.destroy({
+			where: { id },
+		});
+
+		if (!deleted) {
+			res.status(404).json({ message: 'Employer not found' });
+			return;
+		}
+
+		res.status(200).json({
+			message: 'Employer profile deleted successfully',
+		});
+	} catch (err) {
+		const error = err as Error;
+		res.status(400).json({ error: error.message });
+	}
+};

@@ -7,6 +7,7 @@ import {
 	TextField,
 	Snackbar,
 	Alert,
+	Modal,
 } from '@mui/material';
 
 interface ProfileData {
@@ -26,6 +27,8 @@ const Profile = ({ type }: ProfileProps) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [profile, setProfile] = useState<ProfileData | null>(null);
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [modalOpen, setModalOpen] = useState(false);
+	const [deleteConfirmText, setDeleteConfirmText] = useState('');
 
 	useEffect(() => {
 		const fetchProfile = async () => {
@@ -142,6 +145,25 @@ const Profile = ({ type }: ProfileProps) => {
 		}
 	};
 
+	const handleDeleteAccount = async () => {
+		try {
+			await fetch(
+				`http://localhost:5000/${type}/delete-profile/${profile?.id}`,
+				{
+					method: 'DELETE',
+					credentials: 'include',
+				}
+			);
+			// window.location.href = '/login';
+		} catch (error) {
+			console.error('Error deleting account:', error);
+		}
+	};
+
+	const openDeleteModal = () => {
+		setModalOpen(true);
+	};
+
 	return (
 		<Paper
 			elevation={3}
@@ -211,6 +233,13 @@ const Profile = ({ type }: ProfileProps) => {
 					>
 						Logout
 					</Button>
+					<Button
+						variant='contained'
+						color='warning'
+						onClick={openDeleteModal}
+					>
+						Delete Account
+					</Button>
 				</Box>
 
 				<Snackbar
@@ -228,6 +257,49 @@ const Profile = ({ type }: ProfileProps) => {
 						Profile Updated
 					</Alert>
 				</Snackbar>
+
+				<Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+					<Box
+						sx={{
+							position: 'absolute',
+							top: '50%',
+							left: '50%',
+							transform: 'translate(-50%, -50%)',
+							width: 400,
+							bgcolor: 'background.paper',
+							boxShadow: 24,
+							p: 4,
+							borderRadius: '10px',
+						}}
+					>
+						<Typography variant='h6' align='center' mb={2}>
+							Confirm Account Deletion
+						</Typography>
+						<Typography variant='body2' align='center' mb={3}>
+							To confirm, please type "DELETE" below and press
+							Delete.
+						</Typography>
+						<TextField
+							fullWidth
+							variant='outlined'
+							label='Type DELETE to confirm'
+							value={deleteConfirmText}
+							onChange={(e) =>
+								setDeleteConfirmText(e.target.value)
+							}
+						/>
+						<Button
+							fullWidth
+							variant='contained'
+							color='error'
+							disabled={deleteConfirmText !== 'DELETE'}
+							onClick={handleDeleteAccount}
+							sx={{ mt: 2 }}
+						>
+							Delete Account
+						</Button>
+					</Box>
+				</Modal>
 			</Box>
 		</Paper>
 	);

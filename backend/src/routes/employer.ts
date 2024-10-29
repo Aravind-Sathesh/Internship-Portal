@@ -1,11 +1,16 @@
 import express from 'express';
-import { login, updateProfile } from '../controllers/employerController';
+import {
+	login,
+	updateProfile,
+	deleteProfile,
+} from '../controllers/employerController';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
 router.post('/login', login);
 router.put('/update-profile/:id', updateProfile);
+router.delete('/delete-profile/:id', deleteProfile);
 router.get('/profile', authenticateToken, (req, res) => {
 	res.json(req.employer);
 });

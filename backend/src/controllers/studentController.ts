@@ -84,3 +84,28 @@ export const updateStudentProfile = async (
 		res.status(400).json({ error: error.message });
 	}
 };
+
+export const deleteStudentProfile = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	const { id } = req.params;
+
+	try {
+		const deleted = await Student.destroy({
+			where: { id },
+		});
+
+		if (!deleted) {
+			res.status(404).json({ message: 'Student not found' });
+			return;
+		}
+
+		res.status(200).json({
+			message: 'Student profile deleted successfully',
+		});
+	} catch (err) {
+		const error = err as Error;
+		res.status(400).json({ error: error.message });
+	}
+};
