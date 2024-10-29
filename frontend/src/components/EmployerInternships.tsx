@@ -32,7 +32,9 @@ interface EmployerInternshipsProps {
 
 const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [isEditMode, setIsEditMode] = useState(false); // Track whether it's edit mode
 	const [roles, setRoles] = useState<Role[]>([]);
+	const [selectedRole, setSelectedRole] = useState<Role | null>(null); // Track the role being edited
 	const [newRole, setNewRole] = useState({
 		role: '',
 		description: '',
@@ -76,23 +78,43 @@ const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 	const handleSubmit = async () => {
 		if (newRole.deadline && newRole.deadline.isAfter(dayjs())) {
 			try {
-				const response = await fetch(
-					'http://localhost:5000/internships',
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify({
-							...newRole,
-							deadline: newRole.deadline.format(),
-						}),
-					}
-				);
-				if (!response.ok) {
-					throw new Error('Failed to submit role data');
+				if (isEditMode && selectedRole) {
+					// PUT request for updating existing role
+					const response = await fetch(
+						`http://localhost:5000/internships/${selectedRole.id}`,
+						{
+							method: 'PUT',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								...newRole,
+								deadline: newRole.deadline.format(),
+							}),
+						}
+					);
+					if (!response.ok) throw new Error('Failed to update role');
+				} else {
+					// POST request for creating new role
+					const response = await fetch(
+						'http://localhost:5000/internships',
+						{
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								...newRole,
+								deadline: newRole.deadline.format(),
+							}),
+						}
+					);
+					if (!response.ok) throw new Error('Failed to submit role');
 				}
+
 				setIsModalOpen(false);
+				setIsEditMode(false);
+				setSelectedRole(null);
 				const updatedRoles = await fetch(
 					`http://localhost:5000/internships/roles/${employeeId}`
 				);
@@ -108,8 +130,16 @@ const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 		}
 	};
 
-	const handleApplicationEdit = (id: number) => {
-		console.log(id);
+	const handleApplicationEdit = (role: Role) => {
+		setSelectedRole(role);
+		setNewRole({
+			role: role.role,
+			description: role.description,
+			employerId: employeeId,
+			deadline: role.deadline,
+		});
+		setIsEditMode(true);
+		setIsModalOpen(true);
 	};
 
 	return (
@@ -169,9 +199,7 @@ const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 								<Button
 									variant='outlined'
 									color='primary'
-									onClick={() =>
-										handleApplicationEdit(role.id)
-									}
+									onClick={() => handleApplicationEdit(role)}
 								>
 									Edit
 								</Button>
@@ -179,12 +207,13 @@ const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 						</TableRow>
 					))}
 					<TableRow
-						onClick={() => setIsModalOpen(true)}
+						onClick={() => {
+							setIsModalOpen(true);
+							setIsEditMode(false);
+						}}
 						sx={{
 							cursor: 'pointer',
-							'&:hover': {
-								backgroundColor: '#f5f5f5',
-							},
+							'&:hover': { backgroundColor: '#f5f5f5' },
 						}}
 					>
 						<TableCell align='center' colSpan={5}>
@@ -200,7 +229,9 @@ const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 				</TableBody>
 			</Table>
 			<Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)}>
-				<DialogTitle>Add New Internship</DialogTitle>
+				<DialogTitle>
+					{isEditMode ? 'Edit Internship' : 'Add New Internship'}
+				</DialogTitle>
 				<DialogContent>
 					<TextField
 						margin='normal'
@@ -247,7 +278,7 @@ const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 						variant='contained'
 						color='primary'
 					>
-						Add internship
+						{isEditMode ? 'Update Internship' : 'Add Internship'}
 					</Button>
 				</DialogActions>
 			</Dialog>
