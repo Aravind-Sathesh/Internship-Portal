@@ -7,8 +7,8 @@ import {
 
 const router = express.Router();
 
-router.post('/update-profile', updateProfile);
+router.post('/initialize-profile', updateProfile);
 router.get('/profile/:email', getStudentProfile);
-router.put('/profile/:id', updateStudentProfile);
+router.put('/update-profile/:id', updateStudentProfile);
 
 export default router;

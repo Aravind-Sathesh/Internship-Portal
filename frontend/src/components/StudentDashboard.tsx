@@ -8,10 +8,10 @@ import {
 	TableCell,
 	Grid,
 	TableBody,
-	TextField,
 	Paper,
 	Button,
 } from '@mui/material';
+import Profile from './Profile';
 
 interface Application {
 	employer: string;
@@ -32,7 +32,6 @@ interface UserData {
 const StudentDashboard = () => {
 	const [applications, setApplications] = useState<Application[]>([]);
 	const [userData, setUserData] = useState<UserData>();
-	const [isEditing, setIsEditing] = useState(false);
 
 	useEffect(() => {
 		const fetchUserData = async () => {
@@ -122,73 +121,6 @@ const StudentDashboard = () => {
 		} catch (error) {
 			console.error('Error accepting application:', error);
 		}
-	};
-
-	const handleEdit = () => {
-		setIsEditing(!isEditing);
-		if (isEditing) {
-			handleSubmit();
-		}
-	};
-
-	const handleSubmit = async () => {
-		if (!userData) return;
-
-		try {
-			const payload = {
-				name: userData.name,
-				email: userData.email,
-				phoneNumber: userData.phoneNumber,
-				address: userData.address,
-			};
-			console.log(payload);
-			console.log(userData);
-			await fetch(
-				`http://localhost:5000/student/profile/${userData.id}`,
-				{
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(payload),
-				}
-			);
-		} catch (error) {
-			console.error('Error updating profile:', error);
-		}
-		setIsEditing(false);
-	};
-
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { name, value } = e.target;
-		if (userData) {
-			setUserData({ ...userData, [name]: value });
-		}
-	};
-
-	const handleLogout = () => {
-		fetch('http://localhost:5000/logout', {
-			method: 'POST',
-			credentials: 'include',
-		})
-			.then((response) => {
-				if (response.ok) {
-					document.cookie.split(';').forEach((cookie) => {
-						document.cookie = cookie
-							.replace(/^ +/, '')
-							.replace(
-								/=.*/,
-								'=;expires=' +
-									new Date(0).toUTCString() +
-									';path=/'
-							);
-					});
-					window.location.href = '/login';
-				} else {
-					console.error('Logout failed');
-				}
-			})
-			.catch((error) => console.error('Error during logout:', error));
 	};
 
 	return (
@@ -300,93 +232,7 @@ const StudentDashboard = () => {
 				</Grid>
 
 				<Grid item xs={12} md={3}>
-					<Paper
-						elevation={3}
-						sx={{
-							padding: 2,
-							height: 'calc(100vh - 11rem)',
-							overflowY: 'auto',
-						}}
-					>
-						<Box
-							display='flex'
-							flexDirection='column'
-							alignItems='center'
-							justifyContent='center'
-						>
-							<Typography
-								variant='h5'
-								align='center'
-								mt={2}
-								mb={3}
-							>
-								Student Profile
-							</Typography>
-							<TextField
-								label='Name'
-								name='name'
-								value={userData?.name || ''}
-								variant='outlined'
-								fullWidth
-								margin='normal'
-								onChange={handleChange}
-								InputProps={{ readOnly: !isEditing }}
-							/>
-							<TextField
-								label='Email'
-								name='email'
-								value={userData?.email || ''}
-								variant='outlined'
-								fullWidth
-								margin='normal'
-								onChange={handleChange}
-								InputProps={{ readOnly: true }}
-							/>
-							<TextField
-								label='Phone Number'
-								name='phoneNumber'
-								value={userData?.phoneNumber || ''}
-								variant='outlined'
-								fullWidth
-								margin='normal'
-								onChange={handleChange}
-								InputProps={{ readOnly: !isEditing }}
-							/>
-							<TextField
-								label='Address'
-								name='address'
-								value={userData?.address || ''}
-								variant='outlined'
-								fullWidth
-								margin='normal'
-								onChange={handleChange}
-								InputProps={{ readOnly: !isEditing }}
-							/>
-							<Box
-								mt={2}
-								display='flex'
-								flexDirection='column'
-								gap='1rem'
-							>
-								<Button
-									variant='contained'
-									color='primary'
-									onClick={handleEdit}
-									sx={{ minWidth: '160px' }}
-								>
-									{isEditing ? 'Submit' : 'Edit'}
-								</Button>
-								<Button
-									variant='contained'
-									color='error'
-									onClick={handleLogout}
-									sx={{ minWidth: '160px' }}
-								>
-									Logout
-								</Button>
-							</Box>
-						</Box>
-					</Paper>
+					<Profile type='student' />
 				</Grid>
 			</Grid>
 		</Box>

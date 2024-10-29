@@ -12,10 +12,11 @@ import {
 	Typography,
 	Grid,
 	Paper,
-	TextField,
 } from '@mui/material';
+import Profile from './Profile';
 
 interface Application {
+	id: number;
 	studentId: number;
 	role: string;
 	studentName: string;
@@ -23,15 +24,16 @@ interface Application {
 }
 
 interface Role {
+	id: number;
 	role: String;
 	description: String;
 	applicationCount: number;
 }
 
 const EmployerDashboard = () => {
-	const [isEditing, setIsEditing] = useState(false);
 	const [applications, setApplications] = useState<Application[]>([
 		{
+			id: 0,
 			studentId: 0,
 			role: 'N/A',
 			studentName: 'N/A',
@@ -56,6 +58,7 @@ const EmployerDashboard = () => {
 		'Accepted',
 	];
 
+	// Fetch employer details on login
 	useEffect(() => {
 		const fetchEmployerDetails = async () => {
 			const token = localStorage.getItem('token');
@@ -84,6 +87,8 @@ const EmployerDashboard = () => {
 		};
 		fetchEmployerDetails();
 	}, []);
+
+	// Fetch roles on page load
 	useEffect(() => {
 		const fetchRoles = async () => {
 			try {
@@ -100,6 +105,7 @@ const EmployerDashboard = () => {
 		fetchRoles();
 	}, [employerProfile]);
 
+	// Fetch applications by employer ID on page load
 	useEffect(() => {
 		const fetchApplications = async () => {
 			try {
@@ -140,6 +146,10 @@ const EmployerDashboard = () => {
 		}
 	};
 
+	const handleApplicationEdit = (id: number) => {
+		// console.log(id);
+	};
+
 	const handleDelete = async (applicationId: number) => {
 		try {
 			await fetch(`http://localhost:5000/applications/${applicationId}`, {
@@ -152,49 +162,6 @@ const EmployerDashboard = () => {
 			console.error('Error deleting application:', error);
 		}
 	};
-
-	const handleEdit = () => {
-		setIsEditing(!isEditing);
-		if (isEditing) {
-			handleSubmit();
-		}
-	};
-
-	const handleSubmit = async () => {
-		try {
-			const payload = {
-				name: employerProfile.name,
-				email: employerProfile.email,
-				phoneNumber: employerProfile.phoneNumber,
-				address: employerProfile.address,
-			};
-			await fetch(
-				`http://localhost:5000/employer/update-profile/${employerProfile.id}`,
-				{
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(payload),
-				}
-			);
-			window.location.href = '/login';
-		} catch (error) {
-			console.error('Error updating profile:', error);
-		}
-		setIsEditing(false);
-	};
-
-	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const { name, value } = e.target;
-		setEmployerProfile({ ...employerProfile, [name]: value });
-	};
-
-	const handleLogout = () => {
-		localStorage.removeItem('token');
-		window.location.href = '/login';
-	};
-
 	return (
 		<Box m={4}>
 			<Typography align='center' variant='h4' mb={4}>
@@ -244,6 +211,15 @@ const EmployerDashboard = () => {
 									>
 										Applications
 									</TableCell>
+									<TableCell
+										align='center'
+										sx={{
+											fontWeight: 'bold',
+											fontSize: '1rem',
+										}}
+									>
+										Actions
+									</TableCell>
 								</TableRow>
 							</TableHead>
 							<TableBody>
@@ -257,6 +233,19 @@ const EmployerDashboard = () => {
 										</TableCell>
 										<TableCell align='center'>
 											{role.applicationCount}
+										</TableCell>
+										<TableCell align='center'>
+											<Button
+												variant='contained'
+												color='primary'
+												onClick={() =>
+													handleApplicationEdit(
+														role.id
+													)
+												}
+											>
+												Edit
+											</Button>
 										</TableCell>
 									</TableRow>
 								))}
@@ -318,7 +307,7 @@ const EmployerDashboard = () => {
 							</TableHead>
 							<TableBody>
 								{applications.map((app) => (
-									<TableRow key={app.studentId}>
+									<TableRow key={app.id}>
 										<TableCell align='center'>
 											{app.studentId}
 										</TableCell>
@@ -353,13 +342,13 @@ const EmployerDashboard = () => {
 										</TableCell>
 										<TableCell align='center'>
 											<Button
-												variant='contained'
-												color='secondary'
+												variant='outlined'
+												color='success'
 												onClick={() =>
 													handleDelete(app.studentId)
 												}
 											>
-												Delete
+												View
 											</Button>
 										</TableCell>
 									</TableRow>
@@ -370,93 +359,7 @@ const EmployerDashboard = () => {
 				</Grid>
 
 				<Grid item xs={12} md={3}>
-					<Paper
-						elevation={3}
-						sx={{
-							padding: 2,
-							height: 'calc(100vh - 11rem)',
-							overflowY: 'auto',
-						}}
-					>
-						<Box
-							display='flex'
-							flexDirection='column'
-							alignItems='center'
-							justifyContent='center'
-						>
-							<Typography
-								variant='h5'
-								align='center'
-								mt={2}
-								mb={3}
-							>
-								Employer Profile
-							</Typography>
-							<TextField
-								label='Name'
-								name='name'
-								value={employerProfile.name}
-								variant='outlined'
-								fullWidth
-								margin='normal'
-								onChange={handleChange}
-								InputProps={{ readOnly: !isEditing }}
-							/>
-							<TextField
-								label='Email'
-								name='email'
-								value={employerProfile.email}
-								variant='outlined'
-								fullWidth
-								margin='normal'
-								onChange={handleChange}
-								InputProps={{ readOnly: true }}
-							/>
-							<TextField
-								label='Phone Number'
-								name='phoneNumber'
-								value={employerProfile.phoneNumber}
-								variant='outlined'
-								fullWidth
-								margin='normal'
-								onChange={handleChange}
-								InputProps={{ readOnly: !isEditing }}
-							/>
-							<TextField
-								label='Address'
-								name='address'
-								value={employerProfile.address}
-								variant='outlined'
-								fullWidth
-								margin='normal'
-								onChange={handleChange}
-								InputProps={{ readOnly: !isEditing }}
-							/>
-							<Box
-								mt={2}
-								display='flex'
-								flexDirection='column'
-								gap='1rem'
-							>
-								<Button
-									variant='contained'
-									color='primary'
-									onClick={handleEdit}
-									sx={{ minWidth: '160px' }}
-								>
-									{isEditing ? 'Submit' : 'Edit'}
-								</Button>
-								<Button
-									variant='contained'
-									color='error'
-									onClick={handleLogout}
-									sx={{ minWidth: '160px' }}
-								>
-									Logout
-								</Button>
-							</Box>
-						</Box>
-					</Paper>
+					<Profile type='employer' />
 				</Grid>
 			</Grid>
 		</Box>
