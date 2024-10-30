@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import sequelize from 'sequelize';
 import Application from '../models/application';
 import Internship from '../models/internship';
 import Student from '../models/student';
@@ -35,11 +36,11 @@ export const getAllApplications = async (
 			include: [
 				{
 					model: Internship,
-					include: [Employer],
+					where: { is_active: true },
+					attributes: { exclude: ['is_active'] },
+					include: [{ model: Employer }],
 				},
-				{
-					model: Student,
-				},
+				{ model: Student },
 			],
 		});
 		res.status(200).json(applications);
@@ -59,11 +60,11 @@ export const getApplicationById = async (
 			include: [
 				{
 					model: Internship,
-					include: [Employer],
+					where: { is_active: true },
+					attributes: { exclude: ['is_active'] },
+					include: [{ model: Employer }],
 				},
-				{
-					model: Student,
-				},
+				{ model: Student },
 			],
 		});
 		if (!application) {
@@ -90,13 +91,9 @@ export const getApplicationsByStudentId = async (
 			include: [
 				{
 					model: Internship,
+					where: { is_active: true },
 					attributes: ['role'],
-					include: [
-						{
-							model: Employer,
-							attributes: ['name'],
-						},
-					],
+					include: [{ model: Employer, attributes: ['name'] }],
 				},
 			],
 		});
@@ -131,18 +128,22 @@ export const getApplicationsByEmployerId = async (
 			include: [
 				{
 					model: Internship,
-					attributes: ['role'],
-					include: [
-						{
-							model: Employer,
-							attributes: ['name'],
-						},
-					],
+					where: { is_active: true },
+					attributes: ['role', 'id'],
+					include: [{ model: Employer, attributes: ['name'] }],
 				},
 				{
 					model: Student,
 					attributes: ['id', 'name'],
 				},
+			],
+			order: [
+				[
+					sequelize.literal(
+						`FIELD(status, 'Accepted', 'Offer Given', 'Interview Scheduled', 'Applied', 'Rejected', 'Withdrawn')`
+					),
+					'ASC',
+				],
 			],
 		});
 
@@ -155,6 +156,7 @@ export const getApplicationsByEmployerId = async (
 				studentName: student?.name || 'N/A',
 				role: internship?.role || 'N/A',
 				status: app.status,
+				internshipId: internship?.id || 'N/A',
 			};
 		});
 

@@ -32,7 +32,10 @@ export const getAllInternships = async (
 	res: Response
 ): Promise<void> => {
 	try {
-		const internships = await Internship.findAll();
+		const internships = await Internship.findAll({
+			where: { is_active: true },
+			attributes: { exclude: ['is_active'] },
+		});
 		res.status(200).json(internships);
 	} catch (err) {
 		const error = err as Error;
@@ -47,12 +50,49 @@ export const getInternshipById = async (
 	const { id } = req.params;
 
 	try {
-		const internship = await Internship.findByPk(id);
+		const internship = await Internship.findOne({
+			where: { id, is_active: true },
+			attributes: { exclude: ['is_active'] },
+		});
 		if (!internship) {
 			res.status(404).json({ message: 'Internship not found' });
 			return;
 		}
 		res.status(200).json(internship);
+	} catch (err) {
+		const error = err as Error;
+		res.status(400).json({ error: error.message });
+	}
+};
+
+export const getInternshipsWithEmployers = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	try {
+		const internshipsWithEmployers = await Internship.findAll({
+			where: { is_active: true },
+			attributes: ['id', 'role', 'description', 'deadline'],
+			include: [
+				{
+					model: Employer,
+					attributes: ['id', 'name'],
+				},
+			],
+		});
+
+		const formattedInternships = internshipsWithEmployers.map(
+			(internship: any) => ({
+				internshipId: internship.id,
+				employer: internship.Employer.name,
+				employerId: internship.Employer.id,
+				role: internship.role,
+				description: internship.description,
+				deadline: internship.deadline,
+			})
+		);
+
+		res.status(200).json(formattedInternships);
 	} catch (err) {
 		const error = err as Error;
 		res.status(400).json({ error: error.message });
@@ -93,12 +133,24 @@ export const deleteInternship = async (
 	const { id } = req.params;
 
 	try {
-		const deleted = await Internship.destroy({ where: { id } });
-		if (!deleted) {
+		const updatedInternship = await Internship.update(
+			{ is_active: false },
+			{ where: { id } }
+		);
+
+		if (!updatedInternship[0]) {
 			res.status(404).json({ message: 'Internship not found' });
 			return;
 		}
-		res.status(200).json({ message: 'Internship deleted successfully' });
+
+		await Application.update(
+			{ status: 'Rejected' },
+			{ where: { internshipId: id } }
+		);
+
+		res.status(200).json({
+			message: 'Internship marked as deleted successfully',
+		});
 	} catch (err) {
 		const error = err as Error;
 		res.status(400).json({ error: error.message });
@@ -109,7 +161,7 @@ export const getRoles = async (req: Request, res: Response): Promise<void> => {
 	const { employerId } = req.params;
 	try {
 		const rolesWithCount = await Internship.findAll({
-			where: { employerId },
+			where: { employerId, is_active: true },
 			attributes: [
 				'id',
 				'role',
@@ -142,39 +194,6 @@ export const getRoles = async (req: Request, res: Response): Promise<void> => {
 		}));
 
 		res.status(200).json(formattedRoles);
-	} catch (err) {
-		const error = err as Error;
-		res.status(400).json({ error: error.message });
-	}
-};
-
-export const getInternshipsWithEmployers = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	try {
-		const internshipsWithEmployers = await Internship.findAll({
-			attributes: ['id', 'role', 'description', 'deadline'],
-			include: [
-				{
-					model: Employer,
-					attributes: ['id', 'name'],
-				},
-			],
-		});
-
-		const formattedInternships = internshipsWithEmployers.map(
-			(internship: any) => ({
-				internshipId: internship.id,
-				employer: internship.Employer.name,
-				employerId: internship.Employer.id,
-				role: internship.role,
-				description: internship.description,
-				deadline: internship.deadline,
-			})
-		);
-
-		res.status(200).json(formattedInternships);
 	} catch (err) {
 		const error = err as Error;
 		res.status(400).json({ error: error.message });

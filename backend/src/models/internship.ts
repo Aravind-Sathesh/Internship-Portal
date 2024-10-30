@@ -9,6 +9,7 @@ class Internship extends Model {
 	declare description: string;
 	declare employerId: number;
 	declare deadline: Date;
+	declare is_active: boolean;
 }
 
 Internship.init(
@@ -29,6 +30,10 @@ Internship.init(
 		employerId: {
 			type: DataTypes.INTEGER.UNSIGNED,
 			allowNull: false,
+		},
+		is_active: {
+			type: DataTypes.BOOLEAN,
+			defaultValue: true,
 		},
 		deadline: {
 			type: DataTypes.DATE,

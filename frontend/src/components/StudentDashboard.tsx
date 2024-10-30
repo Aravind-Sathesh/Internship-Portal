@@ -38,6 +38,7 @@ interface Internship {
 	employer: string;
 	deadline: Dayjs;
 	EmployerId?: number;
+	is_active: boolean;
 }
 
 const StudentDashboard = () => {

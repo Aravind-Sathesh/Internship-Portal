@@ -24,6 +24,7 @@ interface Role {
 	description: string;
 	applicationCount: number;
 	deadline: Dayjs;
+	is_active: boolean;
 }
 
 interface EmployerInternshipsProps {
@@ -32,37 +33,40 @@ interface EmployerInternshipsProps {
 
 const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [isEditMode, setIsEditMode] = useState(false); // Track whether it's edit mode
+	const [isEditMode, setIsEditMode] = useState(false);
 	const [roles, setRoles] = useState<Role[]>([]);
-	const [selectedRole, setSelectedRole] = useState<Role | null>(null); // Track the role being edited
+	const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 	const [newRole, setNewRole] = useState({
+		id: 0,
 		role: '',
 		description: '',
 		employerId: 0,
 		deadline: null as Dayjs | null,
+		is_active: true,
 	});
 
 	// Fetch roles on employer profile load
-	useEffect(() => {
-		const fetchRoles = async () => {
-			try {
-				const response = await fetch(
-					`http://localhost:5000/internships/roles/${employeeId}`
-				);
-				const data: Role[] = await response.json();
-				const rolesWithParsedDate = data.map((role: any) => ({
-					...role,
-					deadline: dayjs(role.deadline),
-				}));
-				setRoles(rolesWithParsedDate);
-			} catch (error) {
-				console.error('Error fetching roles:', error);
-			}
-			setNewRole((prevState) => ({
-				...prevState,
-				employerId: employeeId,
+	const fetchRoles = async () => {
+		try {
+			const response = await fetch(
+				`http://localhost:5000/internships/roles/${employeeId}`
+			);
+			const data: Role[] = await response.json();
+			const rolesWithParsedDate = data.map((role: any) => ({
+				...role,
+				deadline: dayjs(role.deadline),
 			}));
-		};
+			setRoles(rolesWithParsedDate);
+		} catch (error) {
+			console.error('Error fetching roles:', error);
+		}
+		setNewRole((prevState) => ({
+			...prevState,
+			employerId: employeeId,
+		}));
+	};
+
+	useEffect(() => {
 		fetchRoles();
 	}, [employeeId]);
 
@@ -133,13 +137,36 @@ const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 	const handleApplicationEdit = (role: Role) => {
 		setSelectedRole(role);
 		setNewRole({
+			id: role.id,
 			role: role.role,
 			description: role.description,
 			employerId: employeeId,
 			deadline: role.deadline,
+			is_active: role.is_active,
 		});
 		setIsEditMode(true);
 		setIsModalOpen(true);
+	};
+
+	const handleDelete = async () => {
+		console.log('Hello!');
+		if (isEditMode && selectedRole) {
+			try {
+				const response = await fetch(
+					`http://localhost:5000/internships/${selectedRole.id}`,
+					{
+						method: 'DELETE',
+					}
+				);
+				if (!response.ok) throw new Error('Failed to update role');
+				setIsModalOpen(false);
+				setIsEditMode(false);
+				setSelectedRole(null);
+				fetchRoles();
+			} catch (error) {
+				console.error('Error deleting role:', error);
+			}
+		}
 	};
 
 	return (
@@ -273,6 +300,11 @@ const EmployerInternships = ({ employeeId }: EmployerInternshipsProps) => {
 					>
 						Cancel
 					</Button>
+					{isEditMode && (
+						<Button onClick={handleDelete} color='error'>
+							Delete Listing
+						</Button>
+					)}
 					<Button
 						onClick={handleSubmit}
 						variant='contained'
