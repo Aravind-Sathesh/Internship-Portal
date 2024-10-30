@@ -21,6 +21,7 @@ interface Application {
 	role: string;
 	studentName: string;
 	status: string;
+	internshipId: number;
 }
 
 const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
@@ -31,6 +32,7 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 			role: 'N/A',
 			studentName: 'N/A',
 			status: '',
+			internshipId: 0,
 		},
 	]);
 
@@ -43,33 +45,33 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 		'Applied',
 	];
 
-	// Fetch applications by employer ID on page load
-	useEffect(() => {
-		const fetchApplications = async () => {
-			try {
-				const response = await fetch(
-					`http://localhost:5000/applications/employer/${employeeId}`
-				);
-				const data: Application[] = await response.json();
-				setApplications(data);
-			} catch (error) {
-				console.error('Error fetching applications:', error);
-			}
-		};
+	const fetchApplications = async () => {
+		try {
+			const response = await fetch(
+				`http://localhost:5000/applications/employer/${employeeId}`
+			);
+			const data: Application[] = await response.json();
+			setApplications(data);
+		} catch (error) {
+			console.error('Error fetching applications:', error);
+		}
+	};
 
+	useEffect(() => {
 		fetchApplications();
 	}, [employeeId]);
 
 	const handleStatusChange = async (
 		applicationId: number,
+		studentId: number,
+		internshipId: number,
 		newStatus: string
 	) => {
-		const updatedApplications = applications.map((app) =>
-			app.studentId === applicationId
-				? { ...app, status: newStatus }
-				: app
-		);
-		setApplications(updatedApplications);
+		const payload = {
+			studentId: studentId,
+			internshipId: internshipId,
+			status: newStatus,
+		};
 
 		try {
 			await fetch(`http://localhost:5000/applications/${applicationId}`, {
@@ -77,8 +79,9 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify({ status: newStatus }),
+				body: JSON.stringify(payload),
 			});
+			fetchApplications();
 		} catch (error) {
 			console.error('Error updating status:', error);
 		}
@@ -155,7 +158,17 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 				</TableHead>
 				<TableBody>
 					{applications.map((app) => (
-						<TableRow key={app.id}>
+						<TableRow
+							key={app.id}
+							sx={{
+								'& .MuiTableCell-root': {
+									color:
+										app.status === 'Accepted'
+											? 'success.light'
+											: 'inherit',
+								},
+							}}
+						>
 							<TableCell align='center'>
 								{app.studentId}
 							</TableCell>
@@ -169,7 +182,9 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 									value={app.status}
 									onChange={(e) =>
 										handleStatusChange(
+											app.id,
 											app.studentId,
+											app.internshipId,
 											e.target.value as string
 										)
 									}
@@ -196,6 +211,7 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 							</TableCell>
 						</TableRow>
 					))}
+					;
 				</TableBody>
 			</Table>
 		</>

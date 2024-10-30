@@ -24,6 +24,41 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 	}
 };
 
+export const createProfile = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	const { name, email, password, address, phoneNumber } = req.body;
+
+	try {
+		const existingEmployer = await Employer.findOne({ where: { email } });
+		if (existingEmployer) {
+			res.status(409).json({
+				message: 'Employer with this email already exists',
+			});
+			return;
+		}
+
+		const hashedPassword = await bcrypt.hash(password, 10);
+
+		const newEmployer = await Employer.create({
+			name,
+			email,
+			password: hashedPassword,
+			address,
+			phoneNumber,
+		});
+
+		res.status(201).json({
+			message: 'Employer profile created successfully',
+			employer: newEmployer,
+		});
+	} catch (err) {
+		const error = err as Error;
+		res.status(400).json({ error: error.message });
+	}
+};
+
 export const updateProfile = async (
 	req: Request,
 	res: Response
