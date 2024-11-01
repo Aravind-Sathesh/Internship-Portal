@@ -111,33 +111,27 @@ const StudentDashboard = () => {
 		fetchApplications();
 	}, [userData]);
 
-	const handleWithdrawApplication = async (id: number) => {
+	const handleStatusChange = async (
+		applicationId: number,
+		newStatus: string
+	) => {
 		try {
-			await fetch(`http://localhost:5000/applications/${id}/cancel`, {
-				method: 'POST',
+			await fetch(`http://localhost:5000/applications/${applicationId}`, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ status: newStatus }),
 			});
 			setApplications(
 				applications.map((app) =>
-					app.id === id ? { ...app, status: 'Withdrawn' } : app
+					app.id === applicationId
+						? { ...app, status: newStatus }
+						: app
 				)
 			);
 		} catch (error) {
-			console.error('Error cancelling application:', error);
-		}
-	};
-
-	const handleAcceptApplication = async (id: number) => {
-		try {
-			await fetch(`http://localhost:5000/applications/${id}/accept`, {
-				method: 'POST',
-			});
-			setApplications(
-				applications.map((app) =>
-					app.id === id ? { ...app, status: 'Accepted' } : app
-				)
-			);
-		} catch (error) {
-			console.error('Error accepting application:', error);
+			console.error('Error updating status:', error);
 		}
 	};
 
@@ -266,8 +260,9 @@ const StudentDashboard = () => {
 											{app.status === 'Offer Given' && (
 												<Button
 													onClick={() =>
-														handleAcceptApplication(
-															app.id
+														handleStatusChange(
+															app.id,
+															'Accepted'
 														)
 													}
 													color='success'
@@ -282,8 +277,9 @@ const StudentDashboard = () => {
 											)}
 											<Button
 												onClick={() =>
-													handleWithdrawApplication(
-														app.id
+													handleStatusChange(
+														app.id,
+														'Withdrawn'
 													)
 												}
 												disabled={[

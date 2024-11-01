@@ -5,12 +5,13 @@ import Internship from '../models/internship';
 import Student from '../models/student';
 import Employer from '../models/employer';
 
+// Create a new application in the applications table
 export const createApplication = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
 	const { studentId, internshipId } = req.body;
-	const status = 'Applied';
+	const status = 'Applied'; // Status of a newly created application will be set to 'Applied'
 	try {
 		const application = await Application.create({
 			studentId,
@@ -27,29 +28,7 @@ export const createApplication = async (
 	}
 };
 
-export const getAllApplications = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	try {
-		const applications = await Application.findAll({
-			include: [
-				{
-					model: Internship,
-					where: { is_active: true },
-					attributes: { exclude: ['is_active'] },
-					include: [{ model: Employer }],
-				},
-				{ model: Student },
-			],
-		});
-		res.status(200).json(applications);
-	} catch (err) {
-		const error = err as Error;
-		res.status(400).json({ error: error.message });
-	}
-};
-
+// Get a single application by its id
 export const getApplicationById = async (
 	req: Request,
 	res: Response
@@ -61,7 +40,7 @@ export const getApplicationById = async (
 				{
 					model: Internship,
 					where: { is_active: true },
-					attributes: { exclude: ['is_active'] },
+					attributes: { exclude: ['is_active'] }, // Only get the applications whose internships are not deleted (is_active = 1)
 					include: [{ model: Employer }],
 				},
 				{ model: Student },
@@ -78,6 +57,7 @@ export const getApplicationById = async (
 	}
 };
 
+// Get all applications for a particular student, including the related role from the internships table
 export const getApplicationsByStudentId = async (
 	req: Request,
 	res: Response
@@ -102,6 +82,7 @@ export const getApplicationsByStudentId = async (
 			const internship = app.get('Internship');
 			const employer = internship?.get('Employer');
 			return {
+				// Only return the required fields
 				id: app.id,
 				role: internship?.role || 'N/A',
 				employer: employer?.name || 'N/A',
@@ -116,6 +97,7 @@ export const getApplicationsByStudentId = async (
 	}
 };
 
+// Get all applications for internships for one specific employer
 export const getApplicationsByEmployerId = async (
 	req: Request,
 	res: Response
@@ -130,14 +112,15 @@ export const getApplicationsByEmployerId = async (
 					model: Internship,
 					where: { is_active: true },
 					attributes: ['role', 'id'],
-					include: [{ model: Employer, attributes: ['name'] }],
+					include: [{ model: Employer, attributes: ['name'] }], // To include the internship name and id
 				},
 				{
 					model: Student,
-					attributes: ['id', 'name'],
+					attributes: ['id', 'name'], // To include the applicant name and id
 				},
 			],
 			order: [
+				// Sort the applications in a order progressively matching the status
 				[
 					sequelize.literal(
 						`FIELD(status, 'Accepted', 'Offer Given', 'Interview Scheduled', 'Applied', 'Rejected', 'Withdrawn')`
@@ -167,86 +150,24 @@ export const getApplicationsByEmployerId = async (
 	}
 };
 
+// To update the status of a particular application
+// Employer - set any status
+// Student - wihdraw or accept
 export const updateApplication = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
 	const { id } = req.params;
-	const { studentId, internshipId, status } = req.body;
-	try {
-		const [updated] = await Application.update(
-			{ studentId, internshipId, status },
-			{ where: { id } }
-		);
-		if (!updated) {
-			res.status(404).json({ message: 'Application not found' });
-			return;
-		}
-		const updatedApplication = await Application.findByPk(id);
-		res.status(200).json({
-			message: 'Application updated successfully',
-			application: updatedApplication,
-		});
-	} catch (err) {
-		const error = err as Error;
-		res.status(400).json({ error: error.message });
-	}
-};
-
-export const withdrawApplication = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	const { id } = req.params;
+	const { status } = req.body;
 	try {
 		const application = await Application.findByPk(id);
 		if (!application) {
 			res.status(404).json({ message: 'Application not found' });
 			return;
 		}
-		application.status = 'Withdrawn';
+		application.status = status;
 		await application.save();
-		res.status(200).json({ message: 'Application cancelled successfully' });
-	} catch (err) {
-		const error = err as Error;
-		res.status(400).json({ error: error.message });
-	}
-};
-
-export const acceptApplication = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	const { id } = req.params;
-
-	try {
-		const application = await Application.findByPk(id);
-		if (!application) {
-			res.status(404).json({ message: 'Application not found' });
-			return;
-		}
-		application.status = 'Accepted';
-		await application.save();
-		res.status(200).json({ message: 'Application cancelled successfully' });
-	} catch (err) {
-		const error = err as Error;
-		res.status(400).json({ error: error.message });
-	}
-};
-
-export const deleteApplication = async (
-	req: Request,
-	res: Response
-): Promise<void> => {
-	const { id } = req.params;
-
-	try {
-		const deleted = await Application.destroy({ where: { id } });
-		if (!deleted) {
-			res.status(404).json({ message: 'Application not found' });
-			return;
-		}
-		res.status(200).json({ message: 'Application deleted successfully' });
+		res.status(200).json({ message: 'Application updated successfully' });
 	} catch (err) {
 		const error = err as Error;
 		res.status(400).json({ error: error.message });
