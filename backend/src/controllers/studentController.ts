@@ -1,14 +1,30 @@
 import { Request, Response } from 'express';
 import Student from '../models/student';
 import Application from '../models/application';
+import { uploadFileToFirebase } from '../firebaseAdmin';
 
 export const updateProfile = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
-	const { email, name, phoneNumber, address, bitsId, photoUrl } = req.body;
+	const { email, name, phoneNumber, address, bitsId } = req.body;
+	const file = req.file;
 
 	try {
+		let photoUrl: string | undefined;
+
+		if (file) {
+			const destination = 'profile-images';
+			const buffer = file.buffer;
+			const contentType = file.mimetype;
+
+			photoUrl = await uploadFileToFirebase(
+				buffer,
+				destination,
+				contentType
+			);
+		}
+
 		const [student, created] = await Student.findOrCreate({
 			where: { email },
 			defaults: { name, phoneNumber, address, bitsId, photoUrl },
@@ -19,7 +35,11 @@ export const updateProfile = async (
 			student.phoneNumber = phoneNumber;
 			student.address = address;
 			student.bitsId = bitsId;
-			student.photoUrl = photoUrl;
+
+			if (photoUrl) {
+				student.photoUrl = photoUrl;
+			}
+
 			await student.save();
 		}
 
