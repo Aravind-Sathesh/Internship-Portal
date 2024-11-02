@@ -97,6 +97,7 @@ export const updateProfile = async (
 			...(photoUrl && { photoUrl }),
 		};
 
+		// Update employer data
 		const [updated] = await Employer.update(updateData, { where: { id } });
 
 		if (!updated) {
@@ -163,11 +164,7 @@ export const sendPasswordResetEmail = async (
 
 		employer.resetPasswordToken = hashedToken;
 		employer.resetPasswordExpires = tokenExpiration;
-
-		console.log('Before save:', employer);
 		await employer.save();
-		console.log('After save:', employer);
-
 		const resetUrl = `${
 			process.env.FRONTEND_URL
 		}/reset-password?token=${resetToken}&email=${encodeURIComponent(

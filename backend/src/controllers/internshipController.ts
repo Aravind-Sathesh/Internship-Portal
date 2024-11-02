@@ -12,7 +12,7 @@ export const createInternship = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
-	const { role, description, employerId, deadline } = req.body;
+	const { role, description, employerId, deadline, details } = req.body;
 
 	try {
 		const internship = await Internship.create({
@@ -20,6 +20,7 @@ export const createInternship = async (
 			description,
 			employerId,
 			deadline,
+			details,
 		});
 		res.status(201).json({
 			message: 'Internship created successfully',
@@ -163,6 +164,7 @@ export const getInternshipsByEmployerId = async (
 				'role',
 				'description',
 				'deadline',
+				'details',
 				[
 					sequelize.fn('COUNT', sequelize.col('Applications.id')),
 					'applicationCount',
@@ -178,6 +180,7 @@ export const getInternshipsByEmployerId = async (
 				'Internship.id',
 				'Internship.role',
 				'Internship.description',
+				'Internship.details',
 			],
 		});
 
@@ -186,6 +189,7 @@ export const getInternshipsByEmployerId = async (
 			deadline: role.deadline,
 			role: role.role,
 			description: role.description,
+			details: role.details,
 			applicationCount: role.dataValues.applicationCount,
 		}));
 

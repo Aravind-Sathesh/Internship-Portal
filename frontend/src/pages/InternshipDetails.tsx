@@ -6,7 +6,6 @@ import {
 	Button,
 	Card,
 	CardContent,
-	CircularProgress,
 	Avatar,
 	Stack,
 	Divider,
@@ -38,7 +37,7 @@ const InternshipDetails = () => {
 	const [internshipDetails, setInternshipDetails] =
 		useState<InternshipDetailsProps | null>(null);
 	const [employer, setEmployer] = useState<EmployerProps | null>(null);
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(false);
 	const [snackbar, setSnackbar] = useState({
 		open: false,
 		message: '',
@@ -56,12 +55,12 @@ const InternshipDetails = () => {
 		} catch (error) {
 			console.error('Error fetching internship details:', error);
 		} finally {
-			setLoading(false);
 			setStudentId(Number(sessionStorage.getItem('studentId')));
 		}
 	};
 
 	const handleApplyToInternship = async (studentId: number) => {
+		setLoading(true);
 		try {
 			const response = await fetch(
 				`http://localhost:5000/applications/`,
@@ -90,6 +89,8 @@ const InternshipDetails = () => {
 				message: 'Failed to apply for internship',
 				severity: 'error',
 			});
+		} finally {
+			setLoading(false);
 		}
 	};
 
@@ -104,10 +105,6 @@ const InternshipDetails = () => {
 	const handleBack = () => {
 		navigate('/student-dashboard');
 	};
-
-	if (loading) {
-		return <CircularProgress />;
-	}
 
 	return (
 		<Box sx={{ maxWidth: '90%', mx: 'auto', mt: 6, p: 4 }}>
@@ -225,7 +222,9 @@ const InternshipDetails = () => {
 									handleApplyToInternship(studentId)
 								}
 							>
-								Apply for this Internship
+								{loading
+									? 'Applying...'
+									: 'Apply for this internship'}
 							</Button>
 						</Box>
 					</CardContent>

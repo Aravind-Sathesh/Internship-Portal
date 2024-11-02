@@ -5,6 +5,7 @@ import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth';
 import dotenv from 'dotenv';
+import './models/associations'; // Import associations for Sequelize models
 import sequelize from './config/database';
 import studentRoutes from './routes/student';
 import employerRoutes from './routes/employer';
@@ -12,7 +13,6 @@ import internshipRoutes from './routes/internship';
 import applicationRoutes from './routes/application';
 import uploadRoutes from './routes/upload';
 
-import './models/associations'; // Import associations for Sequelize models
 import './passport'; // Initialize passport configuration
 
 dotenv.config();
@@ -34,7 +34,7 @@ app.use(
 // Session management setup
 app.use(
 	session({
-		secret: process.env.SESSION_SECRET as string, // Use session secret from environment variables
+		secret: process.env.SESSION_SECRET as string,
 		resave: false,
 		saveUninitialized: false,
 	})
@@ -52,7 +52,7 @@ app.use('/internships', internshipRoutes);
 app.use('/applications', applicationRoutes);
 app.use('/upload', uploadRoutes);
 
-// Logout route
+// Logout route to clear cookies and sessions
 app.post('/logout', (req, res) => {
 	res.clearCookie('token');
 	req.session.destroy((err) => {

@@ -4,12 +4,13 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+// Use Google OAuth 2.0 strategy
 passport.use(
 	new GoogleStrategy(
 		{
 			clientID: process.env.GOOGLE_CLIENT_ID as string,
 			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-			callbackURL: '/auth/google/callback',
+			callbackURL: '/auth/google/callback', // URL to  redirect after authentication
 		},
 		async (accessToken, refreshToken, profile, done) => {
 			if (!profile.emails || profile.emails.length === 0) {
@@ -28,6 +29,7 @@ passport.use(
 				photo: photo,
 			};
 
+			// Check if the email belongs to the authorized domain
 			if (email && email.endsWith('@hyderabad.bits-pilani.ac.in')) {
 				return done(null, user);
 			} else {

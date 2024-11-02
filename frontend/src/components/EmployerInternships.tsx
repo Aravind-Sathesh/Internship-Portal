@@ -80,7 +80,6 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 				deadline: dayjs(role.deadline),
 			}));
 			setRoles(rolesWithParsedDate);
-			console.log(data);
 		} catch (error) {
 			console.error('Error fetching roles:', error);
 		}
@@ -98,7 +97,7 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 		const { name, value } = e.target;
 
 		if (name.startsWith('details.')) {
-			const key = name.split('.')[1]; // Extracts the specific key (e.g., 'salary')
+			const key = name.split('.')[1];
 			setNewRole((prevRole) => ({
 				...prevRole,
 				details: {
@@ -113,6 +112,23 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 
 	const handleDateChange = (date: Dayjs | null) => {
 		setNewRole({ ...newRole, deadline: date });
+	};
+
+	const resetFields = () => {
+		setSelectedRole(null);
+		setNewRole({
+			role: '',
+			description: '',
+			employerId: 0,
+			deadline: dayjs(),
+			is_active: true,
+			details: {
+				salary: '',
+				techStack: [],
+				academicRequirements: '',
+				expandedJobDescription: '',
+			},
+		});
 	};
 
 	const handleSubmit = async () => {
@@ -153,29 +169,8 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 
 				setIsModalOpen(false);
 				setIsEditMode(false);
-				setSelectedRole(null);
-				const updatedRoles = await fetch(
-					`http://localhost:5000/internships/by-employer/${employerId}`
-				);
-				const rolesData: Role[] = await updatedRoles.json();
-				const rolesWithParsedDate = rolesData.map((role: any) => ({
-					...role,
-					deadline: dayjs(role.deadline),
-				}));
-				setRoles(rolesWithParsedDate);
-				setNewRole({
-					role: '',
-					description: '',
-					employerId: 0,
-					deadline: dayjs(),
-					is_active: true,
-					details: {
-						salary: '',
-						techStack: [],
-						academicRequirements: '',
-						expandedJobDescription: '',
-					},
-				});
+				resetFields();
+				fetchRoles();
 			} catch (error) {
 				console.error('Error submitting role:', error);
 			}
@@ -308,6 +303,7 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 						onClick={() => {
 							setIsModalOpen(true);
 							setIsEditMode(false);
+							resetFields();
 						}}
 						sx={{
 							cursor: 'pointer',

@@ -162,7 +162,7 @@ export const uploadStudentDocuments = async (req: Request, res: Response) => {
 				: [];
 			const updatedDocuments = existingDocuments.concat(documentUrls);
 
-			student.documents = updatedDocuments.join(','); // Store as comma-separated string
+			student.documents = updatedDocuments.join(',');
 			await student.save();
 		} else {
 			return res.status(404).json({ message: 'Student not found' });

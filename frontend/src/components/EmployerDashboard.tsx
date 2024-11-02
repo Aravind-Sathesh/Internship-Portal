@@ -17,7 +17,7 @@ const EmployerDashboard = () => {
 	// Fetch employer details on login
 	useEffect(() => {
 		const fetchEmployerDetails = async () => {
-			const token = localStorage.getItem('token');
+			const token = sessionStorage.getItem('token');
 			try {
 				const response = await fetch(
 					'http://localhost:5000/employer/profile',
@@ -62,9 +62,9 @@ const EmployerDashboard = () => {
 							alignItems: 'center',
 						}}
 					>
-						<EmployerInternships employeeId={employerProfile.id} />
+						<EmployerInternships employerId={employerProfile.id} />
 
-						<EmployerApplications employeeId={employerProfile.id} />
+						<EmployerApplications employerId={employerProfile.id} />
 					</Paper>
 				</Grid>
 

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import Employer from '../models/employer';
 
+// Extends the express interface include the employer property
 declare global {
 	namespace Express {
 		interface Request {
@@ -10,6 +11,7 @@ declare global {
 	}
 }
 
+// To verify the authenticity of a JWT and attach enployer info
 export const authenticateToken = async (
 	req: Request,
 	res: Response,

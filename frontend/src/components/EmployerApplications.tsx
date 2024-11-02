@@ -9,11 +9,9 @@ import {
 	Select,
 	Button,
 	MenuItem,
+	Snackbar,
+	Alert,
 } from '@mui/material';
-
-interface EmployerApplicationsProps {
-	employeeId: number;
-}
 
 interface Application {
 	id: number;
@@ -22,9 +20,13 @@ interface Application {
 	studentName: string;
 	status: string;
 	internshipId: number;
+	documents: string;
 }
 
-const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
+const EmployerApplications: React.FC<{ employerId: number }> = ({
+	employerId,
+}) => {
+	const [snackbarOpen, setSnackbarOpen] = useState(false);
 	const [applications, setApplications] = useState<Application[]>([
 		{
 			id: 0,
@@ -33,6 +35,7 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 			studentName: 'N/A',
 			status: '',
 			internshipId: 0,
+			documents: '',
 		},
 	]);
 
@@ -48,7 +51,7 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 	const fetchApplications = async () => {
 		try {
 			const response = await fetch(
-				`http://localhost:5000/applications/employer/${employeeId}`
+				`http://localhost:5000/applications/employer/${employerId}`
 			);
 			const data: Application[] = await response.json();
 			setApplications(data);
@@ -59,45 +62,32 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 
 	useEffect(() => {
 		fetchApplications();
-	}, [employeeId]);
+	}, [employerId]);
 
 	const handleStatusChange = async (
 		applicationId: number,
-		studentId: number,
-		internshipId: number,
 		newStatus: string
 	) => {
-		const payload = {
-			studentId: studentId,
-			internshipId: internshipId,
-			status: newStatus,
-		};
-
 		try {
 			await fetch(`http://localhost:5000/applications/${applicationId}`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify(payload),
+				body: JSON.stringify({ status: newStatus }),
 			});
 			fetchApplications();
+			setSnackbarOpen(true);
 		} catch (error) {
 			console.error('Error updating status:', error);
 		}
 	};
 
-	const handleView = async (applicationId: number) => {
-		try {
-			await fetch(`http://localhost:5000/applications/${applicationId}`, {
-				method: 'DELETE',
-			});
-			setApplications(
-				applications.filter((app) => app.studentId !== applicationId)
-			);
-		} catch (error) {
-			console.error('Error deleting application:', error);
-		}
+	const handleView = (documentsList: string) => {
+		const firstUrl = documentsList.split(',')[0];
+		if (firstUrl === 'N/A') {
+			alert('The student has not uploaded a CV');
+		} else window.open(firstUrl, '_blank');
 	};
 
 	return (
@@ -183,8 +173,6 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 									onChange={(e) =>
 										handleStatusChange(
 											app.id,
-											app.studentId,
-											app.internshipId,
 											e.target.value as string
 										)
 									}
@@ -203,17 +191,33 @@ const EmployerApplications = ({ employeeId }: EmployerApplicationsProps) => {
 								<Button
 									variant='outlined'
 									color='success'
-									onClick={() => handleView(app.studentId)}
+									onClick={() =>
+										handleView(app.documents as string)
+									}
 									disabled={app.status === 'Withdrawn'}
 								>
-									View
+									View CV
 								</Button>
 							</TableCell>
 						</TableRow>
 					))}
-					;
 				</TableBody>
 			</Table>
+			<Snackbar
+				open={snackbarOpen}
+				autoHideDuration={5000}
+				onClose={() => setSnackbarOpen(false)}
+				anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+			>
+				<Alert
+					onClose={() => setSnackbarOpen(false)}
+					severity='success'
+					variant='filled'
+					sx={{ width: '15rem' }}
+				>
+					Application Updated
+				</Alert>
+			</Snackbar>
 		</>
 	);
 };

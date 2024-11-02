@@ -9,6 +9,7 @@ interface CustomUser extends Express.User {
 	photo?: string;
 }
 
+// Student Login: Authentication using Google OAuth
 const googleCallback = async (req: Request, res: Response): Promise<void> => {
 	const user = req.user as CustomUser;
 
@@ -22,14 +23,11 @@ const googleCallback = async (req: Request, res: Response): Promise<void> => {
 	const userId = user.id || 'No ID found';
 	const photo = user.photo || '';
 
-	console.log('Email received from Google:', email);
 	let studentId = userId;
 	const match = email.match(/^f(\d{8})@hyderabad\.bits-pilani\.ac\.in$/);
-	console.log(match);
 	if (match) {
 		const rollNumber = match[1];
 		studentId = '411' + rollNumber;
-		console.log(studentId);
 	}
 
 	const payload = {
@@ -45,7 +43,6 @@ const googleCallback = async (req: Request, res: Response): Promise<void> => {
 	}
 
 	const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
-	console.log('JWT payload:', payload);
 
 	const student = await Student.findOne({ where: { email } });
 
@@ -58,6 +55,7 @@ const googleCallback = async (req: Request, res: Response): Promise<void> => {
 	}
 };
 
+// Employer Login: BCrypt Authentication in MySQL Database
 const userInfo = (req: Request, res: Response) => {
 	const token = req.cookies.token;
 	const jwtSecret = process.env.JWT_SECRET as string;

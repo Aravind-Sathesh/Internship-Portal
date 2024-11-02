@@ -94,8 +94,8 @@ const Login = () => {
 				}
 			);
 			const data = await response.json();
-			if (data.success) {
-				setTabValue(0);
+			if (data.employer) {
+				handleTabChange(event, 0);
 				setRegisterData({
 					name: '',
 					email: '',
@@ -204,7 +204,7 @@ const Login = () => {
 							<Grid item xs={12}>
 								<form onSubmit={handleEmployerRegister}>
 									<TextField
-										label='Name'
+										label='Company Name'
 										name='name'
 										value={registerData.name}
 										onChange={handleInputChange}

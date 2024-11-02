@@ -355,7 +355,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 							size='small'
 							color='primary'
 							onClick={handleEditToggle}
-							sx={{ minWidth: '7rem' }}
+							sx={{ minWidth: '7.5rem' }}
 						>
 							{isEditing ? 'Save Profile' : 'Edit Profile'}
 						</Button>
@@ -364,7 +364,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 							color='warning'
 							size='small'
 							onClick={handleLogout}
-							sx={{ minWidth: '7rem' }}
+							sx={{ minWidth: '7.5rem' }}
 						>
 							Logout
 						</Button>

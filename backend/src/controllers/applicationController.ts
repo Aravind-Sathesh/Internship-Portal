@@ -24,9 +24,7 @@ export const createApplication = async (
 
 		// Check if internship exists and include employer details
 		const internship = await Internship.findByPk(internshipId, {
-			include: [
-				{ model: Employer, as: 'employer', attributes: ['name'] },
-			],
+			include: [{ model: Employer, attributes: ['name'] }],
 		});
 		if (!internship) {
 			res.status(404).json({ message: 'Internship not found' });
@@ -161,7 +159,7 @@ export const getApplicationsByEmployerId = async (
 				},
 				{
 					model: Student,
-					attributes: ['id', 'name'], // To include the applicant name and id
+					attributes: ['id', 'name', 'documents'], // To include the applicant name and id
 				},
 			],
 			order: [
@@ -185,6 +183,7 @@ export const getApplicationsByEmployerId = async (
 				role: internship?.role || 'N/A',
 				status: app.status,
 				internshipId: internship?.id || 'N/A',
+				documents: student?.documents || 'N/A',
 			};
 		});
 
