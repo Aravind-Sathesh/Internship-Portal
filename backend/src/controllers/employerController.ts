@@ -1,8 +1,12 @@
 import { Request, Response } from 'express';
 import Employer from '../models/employer';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import { sendEmail } from '../config/nodemailer';
 import jwt from 'jsonwebtoken';
+import { uploadFileToFirebase } from '../firebaseAdmin';
 
+// Handle login for employers
 export const login = async (req: Request, res: Response): Promise<void> => {
 	const { email, password } = req.body;
 
@@ -24,6 +28,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 	}
 };
 
+// Register a new employer in the employers table
 export const createProfile = async (
 	req: Request,
 	res: Response
@@ -59,18 +64,40 @@ export const createProfile = async (
 	}
 };
 
+// Update employer profile details
 export const updateProfile = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
-	const { id } = req.params;
+	const id = Number(req.params.id);
 	const { name, email, phoneNumber, address } = req.body;
+	const file = req.file;
 
 	try {
-		const [updated] = await Employer.update(
-			{ name, email, phoneNumber, address },
-			{ where: { id } }
-		);
+		let photoUrl: string | undefined;
+
+		if (file) {
+			const destination = 'employer-profile-images';
+			const buffer = file.buffer;
+			const contentType = file.mimetype;
+
+			// Upload the file to Firebase and get the URL
+			photoUrl = await uploadFileToFirebase(
+				buffer,
+				destination,
+				contentType
+			);
+		}
+
+		const updateData = {
+			name,
+			email,
+			phoneNumber,
+			address,
+			...(photoUrl && { photoUrl }),
+		};
+
+		const [updated] = await Employer.update(updateData, { where: { id } });
 
 		if (!updated) {
 			res.status(404).json({ message: 'Employer not found' });
@@ -89,6 +116,7 @@ export const updateProfile = async (
 	}
 };
 
+// Delete employer profile
 export const deleteProfile = async (
 	req: Request,
 	res: Response
@@ -111,5 +139,114 @@ export const deleteProfile = async (
 	} catch (err) {
 		const error = err as Error;
 		res.status(400).json({ error: error.message });
+	}
+};
+
+export const sendPasswordResetEmail = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	const { email } = req.body;
+
+	try {
+		const employer = await Employer.findOne({ where: { email } });
+
+		if (!employer) {
+			res.status(404).json({ message: 'Employer not found' });
+			return;
+		}
+
+		const resetToken = crypto.randomBytes(32).toString('hex');
+		const hashedToken = await bcrypt.hash(resetToken, 10);
+		const tokenExpiration = new Date();
+		tokenExpiration.setHours(tokenExpiration.getHours() + 1);
+
+		employer.resetPasswordToken = hashedToken;
+		employer.resetPasswordExpires = tokenExpiration;
+
+		console.log('Before save:', employer);
+		await employer.save();
+		console.log('After save:', employer);
+
+		const resetUrl = `${
+			process.env.FRONTEND_URL
+		}/reset-password?token=${resetToken}&email=${encodeURIComponent(
+			email
+		)}`;
+
+		const subject = 'Password Reset Request';
+		const text = `Dear ${employer.name},
+  
+  We received a request to reset your password. Click the link below to reset your password:
+  
+  ${resetUrl}
+  
+  If you did not request this, please ignore this email or contact support if you have any concerns.
+  
+  This link will expire in 1 hour.
+  
+  Best regards,
+The Internship Portal Team.`;
+
+		await sendEmail({ to: email, subject, text });
+
+		res.status(200).json({
+			message: 'Password reset email sent successfully',
+		});
+	} catch (err) {
+		const error = err as Error;
+		res.status(500).json({ error: error.message });
+	}
+};
+
+export const resetPassword = async (
+	req: Request,
+	res: Response
+): Promise<void> => {
+	const { token, email, newPassword } = req.body;
+
+	try {
+		const employer = await Employer.findOne({ where: { email } });
+
+		if (!employer) {
+			res.status(404).json({ message: 'Employer not found' });
+			return;
+		}
+
+		if (!employer.resetPasswordToken || !employer.resetPasswordExpires) {
+			res.status(400).json({
+				message: 'Invalid or expired password reset token',
+			});
+			return;
+		}
+
+		// Check if the token is valid and not expired
+		const isTokenValid = await bcrypt.compare(
+			token,
+			employer.resetPasswordToken
+		);
+		const isTokenExpired = new Date() > employer.resetPasswordExpires;
+
+		if (!isTokenValid || isTokenExpired) {
+			res.status(400).json({
+				message: 'Invalid or expired password reset token',
+			});
+			return;
+		}
+
+		// Hash the new password and update the employer's record
+		const hashedPassword = await bcrypt.hash(newPassword, 10);
+		employer.password = hashedPassword;
+		employer.resetPasswordToken = null;
+		employer.resetPasswordExpires = null;
+		await employer.save();
+
+		res.status(200).json({
+			message:
+				'Password reset successfully. You can now log in with your new password.',
+		});
+	} catch (err) {
+		const error = err as Error;
+		res.status(500).json({ error: error.message });
 	}
 };

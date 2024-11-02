@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { sendEmail } from '../config/nodemailer';
 import sequelize from 'sequelize';
 import Application from '../models/application';
 import Internship from '../models/internship';
@@ -12,12 +13,56 @@ export const createApplication = async (
 ): Promise<void> => {
 	const { studentId, internshipId } = req.body;
 	const status = 'Applied'; // Status of a newly created application will be set to 'Applied'
+
 	try {
+		// Check if student exists
+		const student = await Student.findByPk(studentId);
+		if (!student) {
+			res.status(404).json({ message: 'Student not found' });
+			return;
+		}
+
+		// Check if internship exists and include employer details
+		const internship = await Internship.findByPk(internshipId, {
+			include: [
+				{ model: Employer, as: 'employer', attributes: ['name'] },
+			],
+		});
+		if (!internship) {
+			res.status(404).json({ message: 'Internship not found' });
+			return;
+		}
+
+		// Create the application
 		const application = await Application.create({
 			studentId,
 			internshipId,
 			status,
 		});
+
+		// Send confirmation email to student
+		const studentEmail = student.email;
+		const studentName = student.name;
+		const internshipRole = internship.role;
+
+		if (studentEmail) {
+			const subject = 'Application Confirmation';
+			const text = `Dear ${studentName},
+
+Thank you for applying for the position of ${internshipRole}. 
+
+Your application (ID: ${application.id}) has been successfully received, and we will keep you updated on its progress.
+
+Best of luck!
+
+Best regards,
+The Internship Portal Team.
+`;
+
+			await sendEmail({ to: studentEmail, subject, text });
+		}
+
+		// Respond with success message
 		res.status(201).json({
 			message: 'Application created successfully',
 			application,
@@ -153,23 +198,56 @@ export const getApplicationsByEmployerId = async (
 // To update the status of a particular application
 // Employer - set any status
 // Student - wihdraw or accept
+// Updated to send a mail on status change
 export const updateApplication = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
 	const { id } = req.params;
 	const { status } = req.body;
+
 	try {
 		const application = await Application.findByPk(id);
 		if (!application) {
 			res.status(404).json({ message: 'Application not found' });
 			return;
 		}
+
+		const student = await Student.findByPk(application.studentId);
+		if (!student) {
+			res.status(404).json({ message: 'Associated student not found' });
+			return;
+		}
+
 		application.status = status;
 		await application.save();
+
+		const studentEmail = student.email;
+		const studentName = student.name;
+		if (studentEmail) {
+			const subject = 'Application Status Update';
+			const text = `Dear ${studentName},
+
+We hope this message finds you well. We wanted to inform you that the status of your application (ID: ${id}) has been updated. 
+
+Current Status: **${status}**
+
+If you have any questions or need further assistance regarding your application, please don't hesitate to reach out.
+
+Thank you for your continued interest and effort.
+
+Best regards,
+The Internship Portal Team.
+`;
+
+			await sendEmail({ to: studentEmail, subject, text });
+		}
+
+		// Respond with a success message
 		res.status(200).json({ message: 'Application updated successfully' });
 	} catch (err) {
 		const error = err as Error;
+		// Respond with an error message
 		res.status(400).json({ error: error.message });
 	}
 };

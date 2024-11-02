@@ -6,8 +6,9 @@ import {
 } from 'react-router-dom';
 import Login from './pages/Login';
 import UpdateProfile from './pages/UpdateProfile';
-import Dashboard from './components/Dashboard';
-import StudentProfile from './pages/StudentProfile';
+import Dashboard from './pages/Dashboard';
+import InternshipDetails from './pages/InternshipDetails';
+import ResetPassword from './pages/ResetPassword';
 
 const App = () => {
 	return (
@@ -24,7 +25,11 @@ const App = () => {
 					element={<Dashboard userType='employer' />}
 				/>
 				<Route path='/update-profile' element={<UpdateProfile />} />
-				<Route path='/student-profile' element={<StudentProfile />} />
+				<Route
+					path='/internship-details/:id'
+					element={<InternshipDetails />}
+				/>
+				<Route path='/reset-password' element={<ResetPassword />} />
 			</Routes>
 		</Router>
 	);

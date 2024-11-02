@@ -8,6 +8,8 @@ class Employer extends Model {
 	declare name: string;
 	declare phoneNumber: string;
 	declare address: string;
+	declare resetPasswordToken?: string | null;
+	declare resetPasswordExpires?: Date | null;
 }
 
 Employer.init(
@@ -37,6 +39,17 @@ Employer.init(
 		address: {
 			type: DataTypes.STRING,
 			allowNull: false,
+		},
+		photoUrl: {
+			type: DataTypes.STRING,
+		},
+		resetPasswordToken: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
+		resetPasswordExpires: {
+			type: DataTypes.DATE,
+			allowNull: true,
 		},
 	},
 	{
