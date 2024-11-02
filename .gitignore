@@ -25,3 +25,6 @@ dist-ssr
 
 #Environment Variables
 .env
+`
+# Private Keys
+backend/src/config/firebase-admin-sdk.json
