@@ -76,7 +76,7 @@ export const getStudentProfile = async (
 	}
 };
 
-export const updateStudentProfile = async (
+export const initializeProfile = async (
 	req: Request,
 	res: Response
 ): Promise<void> => {
@@ -132,5 +132,48 @@ export const deleteStudentProfile = async (
 	} catch (err) {
 		const error = err as Error;
 		res.status(400).json({ error: error.message });
+	}
+};
+
+export const uploadStudentDocuments = async (req: Request, res: Response) => {
+	const { studentId } = req.params;
+	const files = req.files as Express.Multer.File[] | undefined;
+
+	if (!files || files.length === 0) {
+		return res.status(400).json({ message: 'No files uploaded' });
+	}
+
+	try {
+		const documentUrls: string[] = [];
+
+		for (const file of files) {
+			const documentUrl = await uploadFileToFirebase(
+				file.buffer,
+				`students/${studentId}/documents`,
+				file.mimetype
+			);
+			documentUrls.push(documentUrl);
+		}
+
+		const student = await Student.findByPk(studentId);
+		if (student) {
+			const existingDocuments = student.documents
+				? student.documents.split(',')
+				: [];
+			const updatedDocuments = existingDocuments.concat(documentUrls);
+
+			student.documents = updatedDocuments.join(','); // Store as comma-separated string
+			await student.save();
+		} else {
+			return res.status(404).json({ message: 'Student not found' });
+		}
+
+		res.status(200).json({ success: true, documentUrls });
+	} catch (error) {
+		console.error('Error uploading documents:', error);
+		res.status(500).json({
+			success: false,
+			error: 'Failed to upload documents',
+		});
 	}
 };

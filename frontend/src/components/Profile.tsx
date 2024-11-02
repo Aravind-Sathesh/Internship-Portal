@@ -19,12 +19,16 @@ interface ProfileData {
 	phoneNumber: string;
 	bitsId?: string;
 	photoUrl?: string;
+	documents?: string;
 }
 
 const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 	const [isEditing, setIsEditing] = useState(false);
 	const [profile, setProfile] = useState<ProfileData | null>(null);
 	const [snackbarOpen, setSnackbarOpen] = useState(false);
+	const [previouslyUploadedFiles, setPreviouslyUploadedFiles] = useState<
+		string[]
+	>([]);
 	const [modalOpen, setModalOpen] = useState(false);
 	const [docUploadModalOpen, setDocUploadModalOpen] = useState(false);
 	const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -85,6 +89,22 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 
 		fetchProfile();
 	}, [type]);
+
+	useEffect(() => {
+		if (profile?.documents) {
+			setPreviouslyUploadedFiles(
+				profile.documents.split(',').filter((url) => url.trim() !== '')
+			);
+		}
+	}, [profile, uploadedFiles]);
+
+	useEffect(() => {
+		return () => {
+			uploadedFiles.forEach((file) =>
+				URL.revokeObjectURL(URL.createObjectURL(file))
+			);
+		};
+	}, [uploadedFiles]);
 
 	const handleEditToggle = () => {
 		setIsEditing(!isEditing);
@@ -189,13 +209,13 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 
 	const handleDocUpload = async () => {
 		const formData = new FormData();
-		uploadedFiles.forEach((file, index) => {
-			formData.append(`document${index + 1}`, file);
+		uploadedFiles.forEach((file) => {
+			formData.append('documents', file);
 		});
 
 		try {
 			const response = await fetch(
-				'http://localhost:5000/student/upload-documents',
+				`http://localhost:5000/upload/upload-documents/${profile?.id}`,
 				{
 					method: 'POST',
 					body: formData,
@@ -203,13 +223,14 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 				}
 			);
 			if (response.ok) {
-				console.log('Documents uploaded successfully');
-				setDocUploadModalOpen(false);
+				setDocUploadModalOpen(true);
 			} else {
 				console.error('Failed to upload documents');
 			}
 		} catch (error) {
 			console.error('Error uploading documents:', error);
+		} finally {
+			setUploadedFiles([]);
 		}
 	};
 
@@ -226,7 +247,6 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 				<Typography variant='h5' align='center' mt={2} mb={3}>
 					{`${type.charAt(0).toUpperCase() + type.slice(1)} Profile`}
 				</Typography>
-
 				{profile && (
 					<>
 						<Box
@@ -316,7 +336,6 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 						/>
 					</>
 				)}
-
 				<Box
 					mt={2}
 					display='flex'
@@ -369,7 +388,6 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 						Delete Account
 					</Button>
 				</Box>
-
 				<Snackbar
 					open={snackbarOpen}
 					autoHideDuration={3000}
@@ -384,7 +402,6 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 						Profile saved successfully!
 					</Alert>
 				</Snackbar>
-
 				<Modal open={modalOpen} onClose={() => setModalOpen(false)}>
 					<Box
 						sx={{
@@ -424,7 +441,6 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 						</Button>
 					</Box>
 				</Modal>
-
 				<Modal
 					open={docUploadModalOpen}
 					onClose={() => setDocUploadModalOpen(false)}
@@ -455,8 +471,77 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 							color='text.secondary'
 						>
 							Upload up to 3 documents (PDF, DOC, DOCX). The first
-							document must be your CV.
+							document must be your Resumé.
 						</Typography>
+
+						<Box
+							sx={{
+								width: '100%',
+								mb: 2,
+								p: 1,
+								border: '1px solid',
+								borderColor: 'grey.400',
+								borderRadius: '5px',
+								backgroundColor: 'grey.100',
+							}}
+						>
+							<Typography
+								variant='subtitle2'
+								mb={1}
+								color='text.primary'
+							>
+								Previously Uploaded Documents
+							</Typography>
+							{previouslyUploadedFiles.length > 0 ? (
+								previouslyUploadedFiles.map((url, index) => (
+									<Box
+										key={index}
+										sx={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											alignItems: 'center',
+											mb: 1,
+										}}
+									>
+										<Typography
+											variant='body2'
+											sx={{
+												color:
+													index === 0
+														? 'primary.main'
+														: 'inherit',
+												fontWeight:
+													index === 0
+														? 'bold'
+														: 'normal',
+											}}
+										>
+											{index === 0
+												? 'Resumé'
+												: `Document ${index}`}
+										</Typography>
+										<Button
+											variant='text'
+											color='primary'
+											size='small'
+											onClick={() =>
+												window.open(url, '_blank')
+											}
+										>
+											View
+										</Button>
+									</Box>
+								))
+							) : (
+								<Typography
+									variant='body2'
+									color='text.secondary'
+									align='center'
+								>
+									No documents uploaded
+								</Typography>
+							)}
+						</Box>
 
 						<input
 							type='file'
@@ -467,24 +552,10 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 									const filesArray = Array.from(
 										e.target.files
 									).slice(0, 3);
-
-									// Check if the first file is a CV
-									if (
-										filesArray.length > 0 &&
-										!filesArray[0].name
-											.toLowerCase()
-											.includes('cv')
-									) {
-										alert(
-											'The first document must be your CV. Please upload it first.'
-										);
-										return; // Prevent further processing if CV is not first
-									}
-
 									setUploadedFiles(filesArray);
 								}
 							}}
-							style={{ display: 'none' }} // Hide the default file input
+							style={{ display: 'none' }}
 							id='file-upload'
 						/>
 						<label htmlFor='file-upload'>
@@ -530,7 +601,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 													: 'inherit',
 										}}
 									>
-										{file.name} {index === 0 && '(CV)'}
+										{file.name}
 									</Typography>
 								))
 							) : (
@@ -539,7 +610,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 									color='text.secondary'
 									align='center'
 								>
-									No files selected
+									No new files selected
 								</Typography>
 							)}
 						</Box>

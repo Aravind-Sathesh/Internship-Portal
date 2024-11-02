@@ -26,6 +26,13 @@ export const uploadFileToFirebase = async (
 			},
 		});
 
+		console.log(
+			'File uploaded to URL:',
+			`https://storage.googleapis.com/${storage.name}/${fileUpload.name}`
+		);
+
+		console.log('File buffer length:', fileBuffer.length);
+
 		return new Promise((resolve, reject) => {
 			stream.on('error', (err) => reject(err));
 			stream.on('finish', async () => {

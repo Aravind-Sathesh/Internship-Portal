@@ -9,6 +9,7 @@ class Student extends Model {
 	declare address: string;
 	declare bitsId: string;
 	declare photoUrl: string;
+	declare documents: string;
 }
 
 Student.init(
@@ -43,6 +44,9 @@ Student.init(
 		photoUrl: {
 			type: DataTypes.STRING,
 		},
+		documents: {
+			type: DataTypes.TEXT,
+		},
 	},
 	{
 		sequelize,
@@ -50,6 +54,7 @@ Student.init(
 		tableName: 'students',
 		timestamps: false,
 		hooks: {
+			// To automaticlly format and set the id based on the email ID of the student
 			beforeCreate: (student: Student) => {
 				const email = student.email;
 				const idPart = email.match(/\d+/)?.[0];
