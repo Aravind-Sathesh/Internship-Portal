@@ -53,29 +53,6 @@ Docker: A platform that enables developers to automate the deployment of applica
 -   Application Management: View all applications for posted internships and update application statuses (e.g., "Interview Scheduled," "Offer Given," or "Rejected").
 -   Employer Dashboard: A dedicated dashboard for managing posted internships and reviewing applications.
 
-## Dockerization
-
-To dockerize the application, follow these steps:
-
-1. Install Docker on your machine
-
-2. Ensure the following environment variables are present in a .env file in your backend folder:
-
-```
-JWT_SECRET
-GOOGLE_CLIENT_ID
-GOOGLE_CLIENT_SECRET
-SESSION_SECRET
-EMAIL_USER
-OAUTH_REFRESH_TOKEN
-```
-
-3. Run the following code in the root directory of the project
-
-```
-docker-compose up
-```
-
 ## License
 
 This project is licensed under the MIT License.
