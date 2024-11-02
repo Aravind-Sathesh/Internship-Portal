@@ -1,22 +1,22 @@
 import express from 'express';
 import {
 	createInternship,
-	getAllInternships,
 	getInternshipById,
 	updateInternship,
 	deleteInternship,
 	getInternshipsWithEmployers,
-	getRoles,
+	getInternshipsByEmployerId,
+	getInternshipWithExpandedDetails,
 } from '../controllers/internshipController';
 
 const router = express.Router();
 
 router.post('/', createInternship);
-router.get('/', getAllInternships);
 router.get('/with-employers', getInternshipsWithEmployers);
 router.get('/:id', getInternshipById);
+router.get('/expanded/:id', getInternshipWithExpandedDetails);
 router.put('/:id', updateInternship);
 router.delete('/:id', deleteInternship);
-router.get('/roles/:employerId', getRoles);
+router.get('/by-employer/:employerId', getInternshipsByEmployerId);
 
 export default router;

@@ -39,6 +39,10 @@ Internship.init(
 			type: DataTypes.DATE,
 			allowNull: false,
 		},
+		details: {
+			type: DataTypes.TEXT,
+			allowNull: true,
+		},
 	},
 	{
 		sequelize,

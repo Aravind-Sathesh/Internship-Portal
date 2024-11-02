@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import Profile from './Profile';
 import dayjs, { Dayjs } from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 
 interface Application {
 	employer: string;
@@ -46,6 +47,7 @@ const StudentDashboard = () => {
 	const [userData, setUserData] = useState<UserData>();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [internships, setInternships] = useState<Internship[]>([]);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		const fetchUserData = async () => {
@@ -153,29 +155,9 @@ const StudentDashboard = () => {
 		}
 	};
 
-	const handleApplyToInternship = async (internshipId: number) => {
-		try {
-			const studentId = userData?.id;
-			const response = await fetch(
-				`http://localhost:5000/applications/`,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({ studentId, internshipId }),
-				}
-			);
-
-			if (!response.ok) {
-				throw new Error('Failed to apply for internship');
-			}
-
-			setIsModalOpen(false);
-			await fetchApplications();
-		} catch (error) {
-			console.error('Error applying to internship:', error);
-		}
+	const handleMoreDetails = (internshipId: number) => {
+		sessionStorage.setItem('studentId', JSON.stringify(userData?.id));
+		navigate(`/internship-details/${internshipId}`);
 	};
 
 	return (
@@ -184,7 +166,7 @@ const StudentDashboard = () => {
 				Student Dashboard
 			</Typography>
 			<Grid container spacing={3}>
-				<Grid item xs={12} md={9}>
+				<Grid item xs={12} md={8.75}>
 					<Paper
 						elevation={3}
 						sx={{
@@ -239,7 +221,17 @@ const StudentDashboard = () => {
 							</TableHead>
 							<TableBody>
 								{applications.map((app) => (
-									<TableRow key={app.id}>
+									<TableRow
+										key={app.id}
+										sx={{
+											'& .MuiTableCell-root': {
+												color:
+													app.status === 'Accepted'
+														? 'success.light'
+														: 'inherit',
+											},
+										}}
+									>
 										<TableCell align='center'>
 											{app.employer || 'N/A'}
 										</TableCell>
@@ -326,7 +318,7 @@ const StudentDashboard = () => {
 					</Paper>
 				</Grid>
 
-				<Grid item xs={12} md={3}>
+				<Grid item xs={12} md={3.25}>
 					<Profile type='student' />
 				</Grid>
 			</Grid>
@@ -393,7 +385,7 @@ const StudentDashboard = () => {
 										fontSize: '1rem',
 									}}
 								>
-									Action
+									Details
 								</TableCell>
 							</TableRow>
 						</TableHead>
@@ -419,12 +411,12 @@ const StudentDashboard = () => {
 											variant='contained'
 											color='primary'
 											onClick={() =>
-												handleApplyToInternship(
+												handleMoreDetails(
 													internship.internshipId
 												)
 											}
 										>
-											Apply
+											View
 										</Button>
 									</TableCell>
 								</TableRow>
