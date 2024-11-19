@@ -75,8 +75,10 @@ export const getInternshipsWithEmployers = async (
 		const formattedInternships = internshipsWithEmployers.map(
 			(internship: any) => ({
 				internshipId: internship.id,
-				employer: internship.Employer.name,
-				employerId: internship.Employer.id,
+				employer: internship.Employer
+					? internship.Employer.name
+					: 'No employer',
+				employerId: internship.Employer ? internship.Employer.id : null,
 				role: internship.role,
 				description: internship.description,
 				deadline: internship.deadline,
@@ -96,11 +98,11 @@ export const updateInternship = async (
 	res: Response
 ): Promise<void> => {
 	const { id } = req.params;
-	const { role, description, employerId, deadline } = req.body;
+	const { role, description, employerId, deadline, details } = req.body;
 
 	try {
 		const [updated] = await Internship.update(
-			{ role, description, employerId, deadline },
+			{ role, description, employerId, deadline, details },
 			{ where: { id } }
 		);
 		if (!updated) {

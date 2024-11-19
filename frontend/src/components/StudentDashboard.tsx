@@ -53,7 +53,7 @@ const StudentDashboard = () => {
 		const fetchUserData = async () => {
 			try {
 				const response = await fetch(
-					'http://localhost:5000/auth/userinfo',
+					'http://localhost:5001/auth/userinfo',
 					{
 						method: 'GET',
 						credentials: 'include',
@@ -66,7 +66,7 @@ const StudentDashboard = () => {
 				const fetchedUserData = await response.json();
 
 				const userProfile = await fetch(
-					`http://localhost:5000/student/profile/${fetchedUserData.user.email}`
+					`http://localhost:5001/student/profile/${fetchedUserData.user.email}`
 				);
 
 				setUserData(await userProfile.json());
@@ -94,7 +94,7 @@ const StudentDashboard = () => {
 
 			const studentId = `411${match[0]}`;
 			const appResponse = await fetch(
-				`http://localhost:5000/applications/student/${studentId}`
+				`http://localhost:5001/applications/student/${studentId}`
 			);
 			if (!appResponse.ok) {
 				throw new Error('Failed to fetch applications');
@@ -118,7 +118,7 @@ const StudentDashboard = () => {
 		newStatus: string
 	) => {
 		try {
-			await fetch(`http://localhost:5000/applications/${applicationId}`, {
+			await fetch(`http://localhost:5001/applications/${applicationId}`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
@@ -140,7 +140,7 @@ const StudentDashboard = () => {
 	const fetchInternships = async () => {
 		try {
 			const response = await fetch(
-				'http://localhost:5000/internships/with-employers'
+				'http://localhost:5001/internships/with-employers'
 			);
 			const data: Internship[] = await response.json();
 

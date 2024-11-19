@@ -20,7 +20,7 @@ const EmployerDashboard = () => {
 			const token = sessionStorage.getItem('token');
 			try {
 				const response = await fetch(
-					'http://localhost:5000/employer/profile',
+					'http://localhost:5001/employer/profile',
 					{
 						headers: {
 							Authorization: `Bearer ${token}`,

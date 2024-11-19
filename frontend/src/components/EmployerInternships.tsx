@@ -71,7 +71,7 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 	const fetchRoles = async () => {
 		try {
 			const response = await fetch(
-				`http://localhost:5000/internships/by-employer/${employerId}`
+				`http://localhost:5001/internships/by-employer/${employerId}`
 			);
 			const data: Role[] = await response.json();
 
@@ -142,7 +142,7 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 
 				if (isEditMode && selectedRole) {
 					const response = await fetch(
-						`http://localhost:5000/internships/${selectedRole.id}`,
+						`http://localhost:5001/internships/${selectedRole.id}`,
 						{
 							method: 'PUT',
 							headers: {
@@ -155,7 +155,7 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 				} else {
 					// POST request for creating new role
 					const response = await fetch(
-						'http://localhost:5000/internships',
+						'http://localhost:5001/internships',
 						{
 							method: 'POST',
 							headers: {
@@ -178,7 +178,6 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 	};
 
 	const handleApplicationEdit = (role: Role) => {
-		console.log(role);
 		setSelectedRole(role);
 		setNewRole({
 			id: role.id,
@@ -206,7 +205,7 @@ const EmployerInternships: React.FC<{ employerId: number }> = ({
 		if (isEditMode && selectedRole) {
 			try {
 				const response = await fetch(
-					`http://localhost:5000/internships/${selectedRole.id}`,
+					`http://localhost:5001/internships/${selectedRole.id}`,
 					{
 						method: 'DELETE',
 					}

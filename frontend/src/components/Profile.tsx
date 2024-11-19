@@ -45,7 +45,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 				let options: RequestInit;
 
 				if (type === 'employer') {
-					url = `http://localhost:5000/employer/profile`;
+					url = `http://localhost:5001/employer/profile`;
 					options = {
 						headers: {
 							Authorization: `Bearer ${token}`,
@@ -54,7 +54,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 					};
 				} else {
 					const userInfoResponse = await fetch(
-						'http://localhost:5000/auth/userinfo',
+						'http://localhost:5001/auth/userinfo',
 						{
 							method: 'GET',
 							credentials: 'include',
@@ -68,7 +68,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 					const userInfo = await userInfoResponse.json();
 					const email = userInfo.user.email;
 
-					url = `http://localhost:5000/student/profile/${email}`;
+					url = `http://localhost:5001/student/profile/${email}`;
 					options = {
 						credentials: 'include',
 					};
@@ -135,7 +135,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 			formData.append('file', uploadedFiles[0]);
 		}
 
-		const url = `http://localhost:5000/upload/update-profile/${type}/${profile.id}`;
+		const url = `http://localhost:5001/upload/update-profile/${type}/${profile.id}`;
 
 		try {
 			const response = await fetch(url, {
@@ -172,7 +172,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 
 	const handleLogout = async () => {
 		try {
-			const response = await fetch('http://localhost:5000/logout', {
+			const response = await fetch('http://localhost:5001/logout', {
 				method: 'POST',
 				credentials: 'include',
 			});
@@ -191,7 +191,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 		if (deleteConfirmText !== 'DELETE') return;
 
 		try {
-			const url = `http://localhost:5000/${type}/delete-profile/${profile?.id}`;
+			const url = `http://localhost:5001/${type}/delete-profile/${profile?.id}`;
 			const response = await fetch(url, {
 				method: 'DELETE',
 				credentials: 'include',
@@ -215,7 +215,7 @@ const Profile: React.FC<{ type: 'student' | 'employer' }> = ({ type }) => {
 
 		try {
 			const response = await fetch(
-				`http://localhost:5000/upload/upload-documents/${profile?.id}`,
+				`http://localhost:5001/upload/upload-documents/${profile?.id}`,
 				{
 					method: 'POST',
 					body: formData,

@@ -45,7 +45,7 @@ const Login = () => {
 		event.preventDefault();
 		try {
 			const response = await fetch(
-				'http://localhost:5000/employer/login',
+				'http://localhost:5001/employer/login',
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -80,7 +80,7 @@ const Login = () => {
 		}
 		try {
 			const response = await fetch(
-				'http://localhost:5000/employer/register',
+				'http://localhost:5001/employer/register',
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -125,7 +125,7 @@ const Login = () => {
 	const handleSendResetLink = async () => {
 		try {
 			const response = await fetch(
-				'http://localhost:5000/employer/send-password-reset-email',
+				'http://localhost:5001/employer/send-password-reset-email',
 				{
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
@@ -180,7 +180,7 @@ const Login = () => {
 						color='secondary'
 						onClick={() =>
 							(window.location.href =
-								'http://localhost:5000/auth/google')
+								'http://localhost:5001/auth/google')
 						}
 						fullWidth
 						style={{ height: '56px' }}

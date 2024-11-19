@@ -51,7 +51,7 @@ const EmployerApplications: React.FC<{ employerId: number }> = ({
 	const fetchApplications = async () => {
 		try {
 			const response = await fetch(
-				`http://localhost:5000/applications/employer/${employerId}`
+				`http://localhost:5001/applications/employer/${employerId}`
 			);
 			const data: Application[] = await response.json();
 			setApplications(data);
@@ -69,7 +69,7 @@ const EmployerApplications: React.FC<{ employerId: number }> = ({
 		newStatus: string
 	) => {
 		try {
-			await fetch(`http://localhost:5000/applications/${applicationId}`, {
+			await fetch(`http://localhost:5001/applications/${applicationId}`, {
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',

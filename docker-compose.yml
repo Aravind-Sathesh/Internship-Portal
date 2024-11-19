@@ -9,7 +9,7 @@ services:
     backend:
         build: ./backend
         ports:
-            - '5000:5000'
+            - '5001:5001'
         depends_on:
             - redis
         env_file: ./backend/.env

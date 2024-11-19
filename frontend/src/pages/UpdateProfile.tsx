@@ -26,7 +26,7 @@ const UpdateProfile = () => {
 		const fetchProfileData = async () => {
 			try {
 				const response = await fetch(
-					'http://localhost:5000/auth/userinfo',
+					'http://localhost:5001/auth/userinfo',
 					{
 						method: 'GET',
 						credentials: 'include',
@@ -52,7 +52,7 @@ const UpdateProfile = () => {
 
 	const handleProfileUpdate = (event: React.FormEvent) => {
 		event.preventDefault();
-		fetch('http://localhost:5000/student/initialize-profile', {
+		fetch('http://localhost:5001/student/initialize-profile', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(profileData),

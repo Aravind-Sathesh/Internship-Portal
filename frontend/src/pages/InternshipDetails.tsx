@@ -47,7 +47,7 @@ const InternshipDetails = () => {
 	const fetchInternshipDetails = async () => {
 		try {
 			const response = await fetch(
-				`http://localhost:5000/internships/expanded/${id}`
+				`http://localhost:5001/internships/expanded/${id}`
 			);
 			const data = await response.json();
 			setInternshipDetails(data.internshipDetails);
@@ -63,7 +63,7 @@ const InternshipDetails = () => {
 		setLoading(true);
 		try {
 			const response = await fetch(
-				`http://localhost:5000/applications/`,
+				`http://localhost:5001/applications/`,
 				{
 					method: 'POST',
 					headers: {

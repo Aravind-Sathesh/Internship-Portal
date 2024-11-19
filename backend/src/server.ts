@@ -6,6 +6,14 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth';
 import dotenv from 'dotenv';
 import './models/associations'; // Import associations for Sequelize models
+// Suppress Sequelize-specific deprecation warnings
+process.on('warning', (warning) => {
+	if (warning.name === 'DeprecationWarning') {
+		return;
+	}
+	console.warn(warning);
+});
+process.emitWarning = () => {};
 import sequelize from './config/database';
 import studentRoutes from './routes/student';
 import employerRoutes from './routes/employer';
@@ -68,7 +76,7 @@ app.post('/logout', (req, res) => {
 sequelize.sync({ force: false }).then(() => {
 	app.listen(process.env.PORT, () => {
 		console.log(
-			`Server is running on http://localhost:${process.env.PORT}`
+			`\x1b[32mServer is running on http://localhost:${process.env.PORT}\x1b[0m`
 		);
 	});
 });

@@ -48,7 +48,7 @@ const ResetPassword: React.FC = () => {
 
 		try {
 			const response = await fetch(
-				'http://localhost:5000/employer/reset-password',
+				'http://localhost:5001/employer/reset-password',
 				{
 					method: 'POST',
 					headers: {
