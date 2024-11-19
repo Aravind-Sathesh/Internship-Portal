@@ -5,6 +5,10 @@ services:
             - '5173:5173'
         depends_on:
             - backend
+        environment:
+            VITE_API_URL: http://backend:5001
+        networks:
+            - app-network
 
     backend:
         build: ./backend
@@ -17,8 +21,15 @@ services:
             - REDIS_HOST=redis
             - REDIS_PORT=6379
             - HOST=0.0.0.0
+        networks:
+            - app-network
 
     redis:
-        image: redis
+        image: redis:alpine
         ports:
             - '6379:6379'
+        networks:
+            - app-network
+
+networks:
+    app-network:
