@@ -56,32 +56,37 @@ Docker: A platform that enables developers to automate the deployment of applica
 ## How to Run
 
 1. Install Prerequisites:
-Ensure you have the following installed on your system:
-- Docker: [Download and install Docker.](https://www.docker.com/)
-- Docker Compose: Included with most Docker installations. Verify it using:
+   Ensure you have the following installed on your system:
+
+-   Docker: [Download and install Docker.](https://www.docker.com/)
+-   Docker Compose: Included with most Docker installations. Verify it using:
+
 ```
 docker-compose --version
 ```
 
 2. Run the Application:
-In the project root directory, execute:
+   In the project root directory, execute:
+
 ```
 docker-compose up
 ```
 
 3. Access the Application:
-Open your browser and navigate to:
+   Open your browser and navigate to:
+
 ```
-http://localhost:5173 
+http://localhost:5173
 ```
 
 4. Shut Down the Application:
-To stop the application, press Ctrl+C in the terminal where the application is running.
-To remove the containers, use:
+   To stop the application, press Ctrl+C in the terminal where the application is running.
+   To remove the containers, use:
+
 ```
 docker-compose down
 ```
 
 ## License
 
-This project is licensed under the MIT License.
+This project isicensed under the [MIT License](./LICENSE).
