@@ -53,6 +53,35 @@ Docker: A platform that enables developers to automate the deployment of applica
 -   Application Management: View all applications for posted internships and update application statuses (e.g., "Interview Scheduled," "Offer Given," or "Rejected").
 -   Employer Dashboard: A dedicated dashboard for managing posted internships and reviewing applications.
 
+## How to Run
+
+1. Install Prerequisites:
+Ensure you have the following installed on your system:
+- Docker: [Download and install Docker.](https://www.docker.com/)
+- Docker Compose: Included with most Docker installations. Verify it using:
+```
+docker-compose --version
+```
+
+2. Run the Application:
+In the project root directory, execute:
+```
+docker-compose up
+```
+
+3. Access the Application:
+Open your browser and navigate to:
+```
+http://localhost:5173 
+```
+
+4. Shut Down the Application:
+To stop the application, press Ctrl+C in the terminal where the application is running.
+To remove the containers, use:
+```
+docker-compose down
+```
+
 ## License
 
 This project is licensed under the MIT License.
